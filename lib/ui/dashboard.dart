@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import '../api/today_prayer_time.dart';
 
 class Dashboard extends StatefulWidget {
@@ -9,13 +11,87 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  bool servicestatus = false;
+  bool haspermission = false;
+  late LocationPermission permission;
+  late Position position;
+       String long = "", lat = "";
+  late StreamSubscription<Position> positionStream;
+
   String hijri = '';
   String date = '';
   String day = '';
 
   void initState() {
-    super.initState();
     _loadApi();
+    checkGps();
+    super.initState();
+  }
+
+  checkGps() async {
+    servicestatus = await Geolocator.isLocationServiceEnabled();
+    if(servicestatus){
+          permission = await Geolocator.checkPermission();
+        
+          if (permission == LocationPermission.denied) {
+              permission = await Geolocator.requestPermission();
+              if (permission == LocationPermission.denied) {
+                  print('Location permissions are denied');
+              }else if(permission == LocationPermission.deniedForever){
+                  print("'Location permissions are permanently denied");
+              }else{
+                  haspermission = true;
+              }
+          }else{
+              haspermission = true;
+          }
+
+          if(haspermission){
+              setState(() {
+                //refresh the UI
+              });
+
+              getLocation();
+          }
+    }else{
+      print("GPS Service is not enabled, turn on GPS location");
+    }
+
+    setState(() {
+        //refresh the UI
+    });
+  }
+
+  getLocation() async {
+      position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      print(position.longitude); //Output: 80.24599079
+      print(position.latitude); //Output: 29.6593457
+
+      long = position.longitude.toString();
+      lat = position.latitude.toString();
+
+      setState(() {
+         //refresh UI
+      });
+
+      LocationSettings locationSettings = LocationSettings(
+            accuracy: LocationAccuracy.high, //accuracy of the location data
+            distanceFilter: 100, //minimum distance (measured in meters) a 
+                                 //device must move horizontally before an update event is generated;
+      );
+
+      StreamSubscription<Position> positionStream = Geolocator.getPositionStream(
+            locationSettings: locationSettings).listen((Position position) {
+            print(position.longitude); //Output: 80.24599079
+            print(position.latitude); //Output: 29.6593457
+
+            long = position.longitude.toString();
+            lat = position.latitude.toString();
+
+            setState(() {
+              //refresh UI on update
+            });
+      });
   }
 
   Future<void> _loadApi() async {
@@ -51,7 +127,6 @@ class _DashboardState extends State<Dashboard> {
       ),
       drawer: Drawer(
         child: ListView(
-          // Important: Remove any padding from the ListView.
           padding: EdgeInsets.zero,
           children: [
             const DrawerHeader(
@@ -84,6 +159,11 @@ class _DashboardState extends State<Dashboard> {
       body: Center(
         child: Column(
           children: [
+            Text(servicestatus? "GPS is Enabled": "GPS is disabled."),
+                     Text(haspermission? "GPS is Enabled": "GPS is disabled."),
+                     
+                     Text("Longitude: $long", style:TextStyle(fontSize: 20)),
+                     Text("Latitude: $lat", style: TextStyle(fontSize: 20),),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: SizedBox(

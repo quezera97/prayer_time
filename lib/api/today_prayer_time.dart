@@ -1,9 +1,9 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 
-Future<Map<String, dynamic>> fetchPrayerTime() async {
+Future<Map<String, dynamic>> fetchPrayerTime(zone) async {
   var url = Uri.parse(
-      'https://www.e-solat.gov.my/index.php?r=esolatApi/TakwimSolat&period=today&zone=PRK04');
+      'https://www.e-solat.gov.my/index.php?r=esolatApi/TakwimSolat&period=today&zone=$zone');
   var response = await http.get(url);
 
   if (response.statusCode == 200) {

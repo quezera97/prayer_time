@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'ui/dashboard.dart';
 import 'ui/splash_screen.dart';
 
-void main() => runApp(const MyApp());
+void main() {
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -10,9 +13,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Malaysia Slang',
+      title: 'Prayer Time',
       theme: ThemeData(primarySwatch: Colors.blue),
-      // home: HomePage(),
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case '/dashboard':
+            return MaterialPageRoute(builder: (context) => const Dashboard());
+        }
+      },
       routes: {
         '/': (context) => const SplashScreen(),
       },

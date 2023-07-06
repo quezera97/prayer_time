@@ -1,21 +1,19 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 
-Future<Map<String, dynamic>> fetchTimeZone(String long, String lat) async {
-  // String apiKey = 'aeded12e85174a288c9dcd28bd81d2fe';
-
-  // var url = Uri.parse(
-  //     'https://api.geoapify.com/v1/geocode/reverse?lat$lat&lon=$long&format=json&apiKey=$apiKey');
+Future<dynamic> fetchTimeZone(String long, String lat) async {
 
   var url = Uri.parse(
-      'https://timeapi.io/api/Time/current/coordinate?latitude=$lat&longitude=$long');
-  var response = await http.get(url);
+      'https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$long');
+  var responseLatLong = await http.get(url);
 
-  if (response.statusCode == 200) {
-    var jsonResponse = convert.jsonDecode(response.body);
-    // var apiPrayerTime = jsonResponse['prayerTime'][0];
+  if (responseLatLong.statusCode == 200) {
+    var jsonResponse = convert.jsonDecode(responseLatLong.body);
+    // var apiDisplayName = jsonResponse['display_name'];
+    var apiState = jsonResponse['address']['state'];
+    // var apiPostcode = jsonResponse['address']['postcode'];
 
-    return jsonResponse;
+    return apiState;
   } else {
     throw Exception('Failed to fetch time zone');
   }

@@ -8,6 +8,9 @@ import 'package:prayer_time/api/location_time_zone.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../api/today_prayer_time.dart';
 import '../zone/widget.dart';
+import '../zone/options.dart';
+import 'prayer_time.dart';
+import '../components/popupMessage.dart' as pop_up;
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -16,66 +19,100 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {  
-  bool servicestatus = false;
-  bool haspermission = false;
+  bool serviceStatus = false;
+  bool requestPermission = false;
   late LocationPermission permission;
   late Position position;
   String long = "", lat = "";
+  String? prefsLongitude;
+  String? prefsLatitude;
   late StreamSubscription<Position> positionStream;
 
   String hijri = '';
   String date = '';
   String day = '';
+  String imsak = '';
+  String fajr = '';
+  String syuruk = '';
+  String dhuhr = '';
+  String asr = '';
+  String maghrib = '';
+  String isha = '';
 
   String selectedValue = '';
 
+  String? stateZone;
+
+  String? zone;
+  String? prefsZone;
+
+  @override
   void initState() {
-    checkGps();
-    _loadPrayerTime(null);
+    _getInitPrefs();
+    _checkGps();
+
     super.initState();
   }
 
-  checkGps() async {
+  Future<void> _getInitPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    servicestatus = await Geolocator.isLocationServiceEnabled();
+    prefsZone = prefs.getString('prefsZone');
+    prefsLongitude = prefs.getString('prefsLongitude');
+    prefsLatitude = prefs.getString('prefsLatitude');
 
-    await prefs.setBool('prefsServiceStatus', servicestatus);
+    if(prefsLongitude != null && prefsLatitude != null){
+      await _loadTimeZone(prefsLongitude!, prefsLatitude!);
 
-    if(servicestatus){
+      if(prefsZone != null){
+        await _loadPrayerTime(prefsZone);
+
+        setState(() {
+          zone = prefsZone;
+          long = prefsLongitude!;
+          lat = prefsLatitude!;
+        });
+      }
+    }
+
+  }
+
+  Future<void> _checkGps() async {
+    serviceStatus = await Geolocator.isLocationServiceEnabled();
+  
+    if(serviceStatus){
       permission = await Geolocator.checkPermission();
     
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
+
         if (permission == LocationPermission.denied) {
-          haspermission = false;
+          requestPermission = false;
         }
         else if(permission == LocationPermission.deniedForever){
-          haspermission = false;
+          requestPermission = false;
         }
         else{
-          haspermission = true;
+          requestPermission = true;
         }
       }
       else{
-        haspermission = true;
+        requestPermission = true;
       }
 
-      await prefs.setBool('prefsHasPermission', haspermission);
-
-      if(haspermission){
-        getLocation();
+      if(requestPermission == true){
+        _getLocation();
       }
     }
     else{
-      servicestatus = false;
+      serviceStatus = false;
     }
   }
 
-  getLocation() async {
+  Future<void> _getLocation() async {
     LocationSettings locationSettings = const LocationSettings(
-      accuracy: LocationAccuracy.high, //accuracy of the location data
-      distanceFilter: 100, //minimum distance (measured in meters) a 
+      accuracy: LocationAccuracy.high,
+      distanceFilter: 100,
     );
 
     Geolocator.getPositionStream(locationSettings: locationSettings).listen((Position position) {
@@ -89,39 +126,63 @@ class _DashboardState extends State<Dashboard> {
     await prefs.setString('prefsLatitude', lat);
     
     _loadTimeZone(long, lat);
+
+    prefsZone = prefs.getString('prefsZone');
+
+    if(prefsZone != null){
+      setState(() {
+        zone = prefsZone;
+      });
+
+      _loadPrayerTime(prefsZone);
+    }
   }
 
   Future<void> _loadTimeZone(String long, String lat) async {
     try {
-      var timeZone = await fetchTimeZone(long, lat);
+      stateZone = await fetchTimeZone(long, lat);      
 
-      print(timeZone);
+      String matchingZone = '';
+      
+      for (var zoneOption in allZoneOptions) {
+        if (zoneOption['text']!.toLowerCase().contains(stateZone!.toLowerCase())) {
+          matchingZone = zoneOption['value']!;
+          break;
+        }
+      }
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('prefsZone', matchingZone);
+
+      setState(() {
+        stateZone;
+      });
+
     } catch (e) {
       print(e);
     }
   }
 
   Future<void> _loadPrayerTime(zone) async {
-    if(zone != null){
-      try {
-        var prayerTime = await fetchPrayerTime(zone);
+    try {
+      var prayerTime = await fetchPrayerTime(zone);
 
-        setState(() {
-          hijri = prayerTime['hijri'];
-          date = prayerTime['date'];
-          day = prayerTime['day'];
-          // imsak = prayerTime['imsak'];
-          // fajr = prayerTime['fajr'];
-          // syuruk = prayerTime['syuruk'];
-          // dhuhr = prayerTime['dhuhr'];
-          // asr = prayerTime['asr'];
-          // maghrib = prayerTime['maghrib'];
-          // isha = prayerTime['isha'];
-        });
-      } catch (e) {
-        // Handle error
-        print(e);
-      }
+      setState(() {
+        hijri = prayerTime['hijri'];
+        date = prayerTime['date'];
+        day = prayerTime['day'];
+        imsak = prayerTime['imsak'].substring(0, 5);
+        fajr = prayerTime['fajr'].substring(0, 5);
+        syuruk = prayerTime['syuruk'].substring(0, 5);
+        dhuhr = prayerTime['dhuhr'].substring(0, 5);
+        asr = prayerTime['asr'].substring(0, 5);
+        maghrib = prayerTime['maghrib'].substring(0, 5);
+        isha = prayerTime['isha'].substring(0, 5);
+      });
+
+    } catch (e) {
+      // Handle error
+      print(e);
     }
   }
 
@@ -136,18 +197,10 @@ class _DashboardState extends State<Dashboard> {
           Row(
             children: [
               IconButton(
-                icon: servicestatus == true 
-                ? const Icon(
-                  Icons.gps_fixed,
-                  color: Colors.white,
-                )
-                : const Icon(
-                  Icons.gps_off,
-                  color: Colors.white,
-                ),
                 onPressed: () async {
-                  checkGps();
+                  _checkGps();
                 },
+                icon: const Icon( Icons.gps_fixed, color: Colors.white )
               )
             ],
           )
@@ -187,77 +240,76 @@ class _DashboardState extends State<Dashboard> {
       ),
       body: SingleChildScrollView(
         child: Container(
-          padding: const EdgeInsets.all(40.0),
+          padding: const EdgeInsets.all(20.0),
           child: Column(
             children: [
-              if(haspermission == false) ... [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: SizedBox(
-                    height: 100,
-                    child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: Colors.black,
-                            width: 2,
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
-                          child: Column(
-                            children: [
-                              Text('Hijri: $hijri'),
-                              const SizedBox(height: 30),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text('Day: $day'),
-                                  const SizedBox(width: 30),
-                                  Text('Date: $date')
-                                ],
-                              ),
-                            ],
-                          ),
-                        )),
-                  ),
-                ),
-              ]
-              else ... {
+              if (zone == null && (serviceStatus == false || requestPermission == false)) ... [
                 const StatesZonesDropdownWidget(),
 
-                Align(
+                 Align(
                   alignment: Alignment.bottomCenter,
                   child: ElevatedButton(
                     onPressed: () async {
                       SharedPreferences prefs = await SharedPreferences.getInstance();
 
-                      String? zone = prefs.getString('prefsZone');
+                      prefsZone = prefs.getString('prefsZone');
 
-                      if(zone != null){
-                        fetchPrayerTime(zone);
+                      if(prefsZone != null){
+                        _loadPrayerTime(prefsZone);
+
+                        setState(() {
+                          zone = prefsZone;
+                        });
                       }
                       else{
                         showDialog(
                           context: context,
-                          builder: (context) => _buildLogoutConfirmationDialog(context),
+                          builder: (context) => _buildConfirmationDialog(context),
                         ); 
                       }
                     },
                     child: const Text('Pilih'),
                   ),
                 ),
-              }                  
+              ]
+              else if(zone != null && date.isNotEmpty) ... [
+                PrayerTime(hijri: hijri, date: date, day: day,
+                  imsak: imsak,
+                  fajr: fajr,
+                  syuruk: syuruk,
+                  dhuhr: dhuhr,
+                  asr: asr,
+                  maghrib: maghrib,
+                  isha: isha,
+                ),
+              ]
             ],
           ),
+        ),
+      ),
+      bottomNavigationBar: SizedBox(
+        height: 50.0,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.location_on, color: Colors.black54,
+            ),
+            Text( 
+              stateZone ?? '',
+              style: const TextStyle(
+                color: Colors.black54,
+                fontSize: 18.0,
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-Widget _buildLogoutConfirmationDialog(BuildContext context) {
+Widget _buildConfirmationDialog(BuildContext context) {
   return Dialog(
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(10.0),

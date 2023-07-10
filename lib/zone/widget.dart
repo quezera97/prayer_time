@@ -56,8 +56,11 @@ class _StatesZonesDropdownWidgetState extends State<StatesZonesDropdownWidget> {
                       ))
                   .toList(),
               onChanged: (value) async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                await prefs.setString('prefsStateZone', value!);
+
                 setState(() {
-                  _selectedValueStates = value!;
+                  _selectedValueStates = value;
 
                   if (value == StateEnum.johor) {
                     zoneOptions = johorZoneOptions;
@@ -109,10 +112,8 @@ class _StatesZonesDropdownWidgetState extends State<StatesZonesDropdownWidget> {
                 });
 
                 if(_selectedValueZones == ''){
-                  SharedPreferences prefs = await SharedPreferences.getInstance();
                   await prefs.remove('prefsZone');
                 }
-
               },
             ),
 
@@ -128,8 +129,11 @@ class _StatesZonesDropdownWidgetState extends State<StatesZonesDropdownWidget> {
                   ))
                   .toList(),
                 onChanged: (value) async {
-                    SharedPreferences prefs = await SharedPreferences.getInstance();
-                    await prefs.setString('prefsZone', value!);
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  await prefs.setString('prefsZone', value!);
+
+                  // prefs.setString('prefsLongitude', long);
+                  // prefs.setString('prefsLatitude', lat);
 
                   setState(() {
                     _selectedValueZones = value;

@@ -6,11 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:prayer_time/api/location_time_zone.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../api/today_prayer_time.dart';
+import '../components/loading_indicator.dart';
 import '../zone/widget.dart';
 import '../zone/options.dart';
 import 'prayer_time.dart';
-import '../components/popupMessage.dart' as pop_up;
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -18,63 +17,36 @@ class Dashboard extends StatefulWidget {
   State<Dashboard> createState() => _DashboardState();
 }
 
-class _DashboardState extends State<Dashboard> {  
+class _DashboardState extends State<Dashboard> {
   bool serviceStatus = false;
   bool requestPermission = false;
   late LocationPermission permission;
   late Position position;
   String long = "", lat = "";
+  late StreamSubscription<Position> positionStream;
+  
   String? prefsLongitude;
   String? prefsLatitude;
-  late StreamSubscription<Position> positionStream;
-
-  String hijri = '';
-  String date = '';
-  String day = '';
-  String imsak = '';
-  String fajr = '';
-  String syuruk = '';
-  String dhuhr = '';
-  String asr = '';
-  String maghrib = '';
-  String isha = '';
 
   String selectedValue = '';
 
   String? stateZone;
+  String? prefsStateZone;
 
   String? zone;
   String? prefsZone;
 
+  bool loadingScreen = true;
+
   @override
   void initState() {
-    _getInitPrefs();
-    _checkGps();
+    _getInitPrefs();    
 
     super.initState();
   }
 
   Future<void> _getInitPrefs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    prefsZone = prefs.getString('prefsZone');
-    prefsLongitude = prefs.getString('prefsLongitude');
-    prefsLatitude = prefs.getString('prefsLatitude');
-
-    if(prefsLongitude != null && prefsLatitude != null){
-      await _loadTimeZone(prefsLongitude!, prefsLatitude!);
-
-      if(prefsZone != null){
-        await _loadPrayerTime(prefsZone);
-
-        setState(() {
-          zone = prefsZone;
-          long = prefsLongitude!;
-          lat = prefsLatitude!;
-        });
-      }
-    }
-
+    await _checkGps();
   }
 
   Future<void> _checkGps() async {
@@ -101,12 +73,41 @@ class _DashboardState extends State<Dashboard> {
       }
 
       if(requestPermission == true){
-        _getLocation();
+        await _getLocation();
+      }
+      else{
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+
+        prefsZone = prefs.getString('prefsZone');
+        prefsStateZone = prefs.getString('prefsStateZone');
+        prefsLongitude = prefs.getString('prefsLongitude');
+        prefsLatitude = prefs.getString('prefsLatitude');
+
+        setState(() {
+          zone = prefsZone;
+          stateZone = prefsStateZone;
+
+          loadingScreen = false;
+
+          if(prefsLongitude != null && prefsLatitude != null){
+            long = prefsLongitude!;
+            lat = prefsLatitude!;
+          }
+        });
+
+        if(long.isNotEmpty && lat.isNotEmpty){
+          await _loadTimeZone(long, lat);
+        }
       }
     }
     else{
       serviceStatus = false;
     }
+
+    setState(() {
+      serviceStatus;
+      requestPermission;
+    });
   }
 
   Future<void> _getLocation() async {
@@ -115,31 +116,25 @@ class _DashboardState extends State<Dashboard> {
       distanceFilter: 100,
     );
 
-    Geolocator.getPositionStream(locationSettings: locationSettings).listen((Position position) {
-      long = position.longitude.toString();
-      lat = position.latitude.toString();
-    });
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: locationSettings.accuracy,
+    );
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    long = position.longitude.toString();
+    lat = position.latitude.toString();
 
-    await prefs.setString('prefsLongitude', long);
-    await prefs.setString('prefsLatitude', lat);
-    
-    _loadTimeZone(long, lat);
+    // getPositionStream method is used to listen to position updates continuously.
+    // Geolocator.getPositionStream(locationSettings: locationSettings).listen((Position position) {
+    //   long = position.longitude.toString();
+    //   lat = position.latitude.toString();
+    // });
 
-    prefsZone = prefs.getString('prefsZone');
-
-    if(prefsZone != null){
-      setState(() {
-        zone = prefsZone;
-      });
-
-      _loadPrayerTime(prefsZone);
-    }
+    await _loadTimeZone(long, lat);
   }
 
   Future<void> _loadTimeZone(String long, String lat) async {
     try {
+
       stateZone = await fetchTimeZone(long, lat);      
 
       String matchingZone = '';
@@ -153,41 +148,23 @@ class _DashboardState extends State<Dashboard> {
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('prefsZone', matchingZone);
+      await prefs.setString('prefsStateZone', stateZone!);
+      await prefs.setString('prefsLongitude', long);
+      await prefs.setString('prefsLatitude', lat);
 
       setState(() {
         stateZone;
+        loadingScreen = false;
       });
 
     } catch (e) {
-      print(e);
-    }
-  }
-
-  Future<void> _loadPrayerTime(zone) async {
-    try {
-      var prayerTime = await fetchPrayerTime(zone);
-
-      setState(() {
-        hijri = prayerTime['hijri'];
-        date = prayerTime['date'];
-        day = prayerTime['day'];
-        imsak = prayerTime['imsak'].substring(0, 5);
-        fajr = prayerTime['fajr'].substring(0, 5);
-        syuruk = prayerTime['syuruk'].substring(0, 5);
-        dhuhr = prayerTime['dhuhr'].substring(0, 5);
-        asr = prayerTime['asr'].substring(0, 5);
-        maghrib = prayerTime['maghrib'].substring(0, 5);
-        isha = prayerTime['isha'].substring(0, 5);
-      });
-
-    } catch (e) {
-      // Handle error
       print(e);
     }
   }
 
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         centerTitle: true,
         title: const Text(
@@ -239,49 +216,49 @@ class _DashboardState extends State<Dashboard> {
         ),
       ),
       body: SingleChildScrollView(
-        child: Container(
+        child: Container(          
           padding: const EdgeInsets.all(20.0),
           child: Column(
             children: [
-              if (zone == null && (serviceStatus == false || requestPermission == false)) ... [
-                const StatesZonesDropdownWidget(),
+              if(loadingScreen == false) ... [
+                if (stateZone == null) ... [
+                  const StatesZonesDropdownWidget(),
 
-                 Align(
-                  alignment: Alignment.bottomCenter,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      SharedPreferences prefs = await SharedPreferences.getInstance();
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        SharedPreferences prefs = await SharedPreferences.getInstance();
 
-                      prefsZone = prefs.getString('prefsZone');
+                        prefsZone = prefs.getString('prefsZone');
+                        prefsStateZone = prefs.getString('prefsStateZone');
 
-                      if(prefsZone != null){
-                        _loadPrayerTime(prefsZone);
-
-                        setState(() {
-                          zone = prefsZone;
-                        });
-                      }
-                      else{
-                        showDialog(
-                          context: context,
-                          builder: (context) => _buildConfirmationDialog(context),
-                        ); 
-                      }
-                    },
-                    child: const Text('Pilih'),
+                        if(prefsZone != null){
+                          setState(() {
+                            zone = prefsZone;
+                            stateZone = prefsStateZone;
+                          });
+                        }
+                        else{
+                          showDialog(
+                            context: context,
+                            builder: (context) => _buildConfirmationDialog(context),
+                          ); 
+                        }
+                      },
+                      child: const Text('Pilih'),
+                    ),
                   ),
-                ),
+                ]
+                else if(stateZone != null) ... [                
+                  const PrayerTime(),
+                ]
+                else ... [
+                  loadingGifIndicator( gif: 'assets/img/loading.gif', message: 'Loading data...'),
+                ]
               ]
-              else if(zone != null && date.isNotEmpty) ... [
-                PrayerTime(hijri: hijri, date: date, day: day,
-                  imsak: imsak,
-                  fajr: fajr,
-                  syuruk: syuruk,
-                  dhuhr: dhuhr,
-                  asr: asr,
-                  maghrib: maghrib,
-                  isha: isha,
-                ),
+              else ... [
+                loadingGifIndicator( gif: 'assets/img/loading.gif', message: 'Loading data...'),
               ]
             ],
           ),

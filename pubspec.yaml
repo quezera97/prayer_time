@@ -39,9 +39,8 @@ dependencies:
   geolocator: ^9.0.2
   shared_preferences: ^2.1.2
   intl: ^0.18.1
-  workmanager: ^0.5.1
   just_audio: ^0.9.34
-  android_alarm_manager_plus: ^3.0.1
+  workmanager: ^0.5.1
 
 dev_dependencies:
   flutter_test:
@@ -65,12 +64,13 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
   assets:
     - assets/img/
     - assets/img/splashscreen.png
+    - assets/img/loading.gif
     - assets/audio/
     - assets/audio/RabehIbnDarahAlJazairi.mp3
+    - assets/audio/test.mp3
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

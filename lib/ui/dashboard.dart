@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:prayer_time/api/location_time_zone.dart';
+import 'package:prayer_time/ui/muazzin.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../components/loading_indicator.dart';
 import '../zone/widget.dart';
@@ -198,9 +199,12 @@ class _DashboardState extends State<Dashboard> {
               leading: const Icon(
                 Icons.home,
               ),
-              title: const Text('Page 1'),
+              title: const Text('Choose Muazzin'),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Muazzin()),
+                );
               },
             ),
             ListTile(

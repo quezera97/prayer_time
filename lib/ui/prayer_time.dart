@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:prayer_time/api/today_prayer_time.dart';
 import 'package:prayer_time/components/countdown_clock.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../components/date_calc_prayer_time.dart';
 import '../components/loading_indicator.dart';
 
 class PrayerTime extends StatefulWidget {
@@ -67,8 +68,19 @@ class _PrayerTimeState extends State<PrayerTime> {
         maghrib = prayerTime['maghrib'].substring(0, 5);
         isha = prayerTime['isha'].substring(0, 5);
       });
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      await prefs.setString('prefsDate', date);
+      await prefs.setString('prefsImsak', imsak);
+      await prefs.setString('prefsFajr', fajr);
+      await prefs.setString('prefsSyuruk', syuruk);
+      await prefs.setString('prefsDhuhr', dhuhr);
+      await prefs.setString('prefsAsr', asr);
+      await prefs.setString('prefsMaghrib', maghrib);
+      await prefs.setString('prefsIsha', isha);
+
     } catch (e) {
-      // Handle error
       print(e);
     }
   }
@@ -252,60 +264,9 @@ class _PrayerTimeState extends State<PrayerTime> {
           )
         ],
       );
-    
     }
     else{
       return loadingGifIndicator( gif: 'assets/img/loading.gif', message: 'Loading data...');
     }
   }
-
-  int dateParsing(List<String> prayerTimes, String date, List<String> nameOfPrayer) {
-    TimeOfDay currentTime = TimeOfDay.now();
-    DateTime parsedDate = DateFormat("dd-MMM-yyyy").parse(date);
-    String formattedDate = DateFormat("yyyy-MM-dd").format(parsedDate);
-    DateTime currentDateTime = DateTime.now();
-    DateTime currentTimeWithDate = DateTime(
-      currentDateTime.year,
-      currentDateTime.month,
-      currentDateTime.day,
-      currentTime.hour,
-      currentTime.minute,
-    );
-
-    List<String> prayersGreaterThanCurrentTime = [];
-
-    for (int i = 0; i < prayerTimes.length; i++) {
-      String prayerTime = prayerTimes[i];
-      String prayerName = nameOfPrayer[i];
-
-      String fullDateTime = "$formattedDate $prayerTime";
-
-      DateTime comparedDateTime = DateTime.parse(fullDateTime);
-
-      if (currentTimeWithDate.isAfter(comparedDateTime) || currentTimeWithDate == comparedDateTime) {
-        prayersGreaterThanCurrentTime.add(prayerName);
-      }
-    }
-
-    int numberOfItems = prayersGreaterThanCurrentTime.length;
-
-    return numberOfItems;
-  }
-
-  int countdownSeconds(String date) {
-    List<String> timeParts = date.split(':');
-    int hour = int.parse(timeParts[0]);
-    int minute = int.parse(timeParts[1]);
-    
-    TimeOfDay targetTime = TimeOfDay(hour: hour, minute: minute);
-    
-    DateTime now = DateTime.now();
-    DateTime targetDateTime = DateTime(now.year, now.month, now.day, targetTime.hour, targetTime.minute);
-    
-    Duration difference = targetDateTime.difference(now);
-    int differenceInSeconds = difference.inSeconds;
-    
-    return differenceInSeconds;
-  }
-
 }

@@ -46,6 +46,8 @@ dependencies:
   device_info_plus: ^9.0.2
   share_plus: ^7.0.2
   url_launcher: ^6.1.11
+  flutter_qiblah: ^2.2.0
+  flutter_svg: ^2.0.5
 
 dev_dependencies:
   flutter_test:
@@ -73,6 +75,8 @@ flutter:
     - assets/img/
     - assets/img/splashscreen.png
     - assets/img/loading.gif
+    - assets/img/compass.svg
+    - assets/img/needle.svg
     - assets/audio/
     - assets/audio/AdhamAlSharqawe.mp3
     - assets/audio/HamzaAlMajale.mp3

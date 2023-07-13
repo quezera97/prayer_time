@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../components/alert_pop_up.dart';
 import '../components/date_calc_prayer_time.dart';
 import '../components/loading_indicator.dart';
+import '../qiblah/qiblah.dart';
 
 class PrayerTime extends StatefulWidget {
   const PrayerTime({super.key});
@@ -85,10 +86,15 @@ class _PrayerTimeState extends State<PrayerTime> {
       await prefs.setString('prefsIsha', isha);
 
     } catch (e) {
-      AlertPopUp(
-        titleAlert: 'Error!', 
-        contentAlert: e.toString(),
-      );
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return  AlertPopUp(
+            titleAlert: 'Error!', 
+            contentAlert: e.toString(),
+          );
+        },
+      ); 
     }
   }
 
@@ -177,7 +183,7 @@ class _PrayerTimeState extends State<PrayerTime> {
           const SizedBox(height: 10),
           
           SizedBox(
-            height: MediaQuery.of(context).size.height / 2,
+            height: MediaQuery.of(context).size.height / 1.5,
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -201,83 +207,97 @@ class _PrayerTimeState extends State<PrayerTime> {
 
                           Center(child: CountdownClock(seconds: diffInSeconds)),
 
-                          Container(
-                            margin: const EdgeInsets.fromLTRB(20, 10, 0, 0),
-                            color: numberOfItems == 7 ? const Color(0xff764abc) : Colors.transparent,
-                            child: Text(
-                              'Imsak: $imsak',
-                              style: TextStyle(
-                                color: numberOfItems == 7 ? Colors.white : Colors.black,
-                                fontSize: 16,
-                              ),
+                          const Center(
+                            child: SizedBox(
+                              height: 210,
+                              width: 210,
+                              child: Qiblah(),
                             ),
                           ),
-                          Container(
-                            margin: const EdgeInsets.fromLTRB(20, 10, 0, 0),
-                            color: numberOfItems == 1 ? const Color(0xff764abc) : Colors.transparent,
-                            child: Text(
-                              'Fajr: $fajr',
-                              style: TextStyle(
-                                color: numberOfItems == 1 ? Colors.white : Colors.black,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.fromLTRB(20, 10, 0, 0),
-                            color: numberOfItems == 2 ? const Color(0xff764abc) : Colors.transparent,
-                            child: Text(
-                              'Syuruk: $syuruk',
-                              style: TextStyle(
-                                color: numberOfItems == 2 ? Colors.white : Colors.black,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.fromLTRB(20, 10, 0, 0),
-                            color: numberOfItems == 3 ? const Color(0xff764abc) : Colors.transparent,
-                            child: Text(
-                              'Dhuhr: $dhuhr',
-                              style: TextStyle(
-                                color: numberOfItems == 3 ? Colors.white : Colors.black,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.fromLTRB(20, 10, 0, 0),
-                            color: numberOfItems == 4 ? const Color(0xff764abc) : Colors.transparent,
-                            child: Text(
-                              'Asr: $asr',
-                              style: TextStyle(
-                                color: numberOfItems == 4 ? Colors.white : Colors.black,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.fromLTRB(20, 10, 0, 0),
-                            color: numberOfItems == 5 ? const Color(0xff764abc) : Colors.transparent,
-                            child: Text(
-                              'Maghrib: $maghrib',
-                              style: TextStyle(
-                                color: numberOfItems == 5 ? Colors.white : Colors.black,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.fromLTRB(20, 10, 0, 0),
-                            color: numberOfItems == 6 ? const Color(0xff764abc) : Colors.transparent,
-                            child: Text(
-                              'Isha: $isha',
-                              style: TextStyle(
-                                color: numberOfItems == 6 ? Colors.white : Colors.black,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
+
+                          Center(
+                            child: Column(
+                              children: [
+                                Container(
+                                  margin: const EdgeInsets.fromLTRB(20, 10, 0, 0),
+                                  color: numberOfItems == 7 ? const Color(0xff764abc) : Colors.transparent,
+                                  child: Text(
+                                    'Imsak: $imsak',
+                                    style: TextStyle(
+                                      color: numberOfItems == 7 ? Colors.white : Colors.black,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  margin: const EdgeInsets.fromLTRB(20, 10, 0, 0),
+                                  color: numberOfItems == 1 ? const Color(0xff764abc) : Colors.transparent,
+                                  child: Text(
+                                    'Fajr: $fajr',
+                                    style: TextStyle(
+                                      color: numberOfItems == 1 ? Colors.white : Colors.black,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  margin: const EdgeInsets.fromLTRB(20, 10, 0, 0),
+                                  color: numberOfItems == 2 ? const Color(0xff764abc) : Colors.transparent,
+                                  child: Text(
+                                    'Syuruk: $syuruk',
+                                    style: TextStyle(
+                                      color: numberOfItems == 2 ? Colors.white : Colors.black,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),                                    
+                                Container(
+                                  margin: const EdgeInsets.fromLTRB(20, 10, 0, 0),
+                                  color: numberOfItems == 3 ? const Color(0xff764abc) : Colors.transparent,
+                                  child: Text(
+                                    'Dhuhr: $dhuhr',
+                                    style: TextStyle(
+                                      color: numberOfItems == 3 ? Colors.white : Colors.black,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  margin: const EdgeInsets.fromLTRB(20, 10, 0, 0),
+                                  color: numberOfItems == 4 ? const Color(0xff764abc) : Colors.transparent,
+                                  child: Text(
+                                    'Asr: $asr',
+                                    style: TextStyle(
+                                      color: numberOfItems == 4 ? Colors.white : Colors.black,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  margin: const EdgeInsets.fromLTRB(20, 10, 0, 0),
+                                  color: numberOfItems == 5 ? const Color(0xff764abc) : Colors.transparent,
+                                  child: Text(
+                                    'Maghrib: $maghrib',
+                                    style: TextStyle(
+                                      color: numberOfItems == 5 ? Colors.white : Colors.black,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                            margin: const EdgeInsets.fromLTRB(20, 10, 0, 0),
+                                            color: numberOfItems == 6 ? const Color(0xff764abc) : Colors.transparent,
+                                            child: Text(
+                                              'Isha: $isha',
+                                              style: TextStyle(
+                                                color: numberOfItems == 6 ? Colors.white : Colors.black,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          ),
+                              ],
+                            )
+                          )
                         ],
                       ),
                     ),

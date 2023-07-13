@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:prayer_time/api/location_time_zone.dart';
 import 'package:prayer_time/settings/settings.dart';
+import 'package:prayer_time/ui/asma_ul_husna.dart';
 import 'package:prayer_time/ui/muazzin.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../components/alert_pop_up.dart';
@@ -162,10 +163,15 @@ class _DashboardState extends State<Dashboard> {
       });
 
     } catch (e) {
-      AlertPopUp(
-        titleAlert: 'Error!', 
-        contentAlert: e.toString(),
-      );
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return  AlertPopUp(
+            titleAlert: 'Error!', 
+            contentAlert: e.toString(),
+          );
+        },
+      );     
     }
   }
 
@@ -211,6 +217,24 @@ class _DashboardState extends State<Dashboard> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const Muazzin()),
+                );
+              },
+            ),
+            const Divider(
+              thickness: 0.25,
+              color: Colors.grey,
+              indent: 20,
+              endIndent: 20,
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.abc,
+              ),
+              title: const Text('Asma Ul-Husna'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AsmaUlHusna()),
                 );
               },
             ),

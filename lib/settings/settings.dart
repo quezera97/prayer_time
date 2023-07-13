@@ -45,7 +45,7 @@ class _SettingsState extends State<Settings> {
         appBar: AppBar(
           centerTitle: true,
           title: const Text(
-            'Waktu Solat',
+            'Setting',
           ),
           backgroundColor: const Color(0xff764abc),
         ),

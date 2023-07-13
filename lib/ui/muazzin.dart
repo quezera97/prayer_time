@@ -1,5 +1,3 @@
-// ignore_for_file: must_be_immutable
-
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,9 +11,42 @@ class Muazzin extends StatefulWidget {
   @override
   State<Muazzin> createState() => _MuazzinState();
 }
+
 class _MuazzinState extends State<Muazzin> {
+  @override
+  void initState() {
+    _getMuazzin(); 
+
+    super.initState();
+  }
+
+  String muazzin = '';
+  String prefsMuazzin = '';
+
+  Future<void> _getMuazzin() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    prefsMuazzin = prefs.getString('prefsMuazzin') ?? 'RabehIbnDarahAlJazairi';
+
+    String textMuazzin = changeNameCamelCase(prefsMuazzin);
+
+    setState(() {
+      muazzin = textMuazzin;
+    });
+  }
 
   List<AudioPlayer> audioPlayers = [];
+
+  String changeNameCamelCase(muazzinEnum){
+    // Make TextCamelCase become Text Camel Case
+    String textMuazzin = muazzinEnum.replaceAllMapped(RegExp(r'[A-Z][a-z]*'), (match) {
+      return '${match.group(0)} ';
+    });
+
+    textMuazzin = textMuazzin.trim();
+
+    return textMuazzin;
+  }
 
   @override
   void dispose() {
@@ -33,7 +64,7 @@ class _MuazzinState extends State<Muazzin> {
       appBar: AppBar(
         centerTitle: true,
         title: const Text(
-          'Pilihan Muazzin',
+          'Muazzin',
         ),
         backgroundColor: const Color(0xff764abc),
         leading: IconButton(
@@ -43,47 +74,65 @@ class _MuazzinState extends State<Muazzin> {
               audioPlayer.stop();
             }
 
-            Navigator.of(context).pop();
+            Navigator.pushReplacementNamed(context, '/dashboard');
           },
         ),
       ),
-      body: ListView.builder(
-        itemCount: MuazzinEnum.values.length,
-        itemBuilder: (context, index) {
-          final enumValue = MuazzinEnum.values[index];
-          String muazzin = enumValue.toString();
+      body: Column(
+        children: [
+          ListTile(
+            title: const Text(
+              'Selected Muazzin', 
+              textAlign: TextAlign.center
+            ),
+            subtitle: Text(
+              muazzin,
+              textAlign: TextAlign.center
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: MuazzinEnum.values.length,
+              itemBuilder: (context, index) {
+                final enumValue = MuazzinEnum.values[index];
+                String muazzinEnum = enumValue.toString();
 
-          // Make TextCamelCase become Text Camel Case
-          String textMuazzin = muazzin.replaceAllMapped(RegExp(r'[A-Z][a-z]*'), (match) {
-            return '${match.group(0)} ';
-          });
-          textMuazzin = textMuazzin.trim();
+                String textMuazzin = changeNameCamelCase(muazzinEnum);
 
-          return ListTile(
-            title: Text(textMuazzin),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                PopupMenuButton(
-                  icon: const Icon(Icons.more_vert),
-                  itemBuilder: (context) {
-                    return [
-                      PopupMenuItem(
-                        child: const LeadIconText(icon: Icons.check, text: 'Set'),
-                        onTap: () async {
-                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                return ListTile(
+                  title: Text(textMuazzin),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      PopupMenuButton(
+                        icon: const Icon(Icons.more_vert),
+                        itemBuilder: (context) {
+                          return [
+                            PopupMenuItem(
+                              child: const LeadIconText(icon: Icons.check, text: 'Set'),
+                              onTap: () async {
+                                SharedPreferences prefs = await SharedPreferences.getInstance();
 
-                          await prefs.setString('prefsMuazzin', muazzin);
+                                await prefs.setString('prefsMuazzin', muazzinEnum);
+
+                                String textMuazzin = changeNameCamelCase(muazzinEnum);
+
+                                setState(() {
+                                  muazzin = textMuazzin;
+                                });
+                              },
+                            ),
+                          ];
                         },
                       ),
-                    ];
-                  },
-                ),
-                PlayAudio(muazzin: muazzin, audioPlayers: audioPlayers),
-              ],
-            ),
-          );
-        },
+                      PlayAudio(muazzin: muazzinEnum, audioPlayers: audioPlayers),
+                    ],
+                  ),
+                );
+              },
+            )
+          ),
+        ],
       ),
     );
   }

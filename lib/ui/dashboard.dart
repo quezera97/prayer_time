@@ -44,7 +44,7 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   void initState() {
-    _getInitPrefs();    
+    _getInitPrefs(); 
 
     super.initState();
   }
@@ -206,13 +206,19 @@ class _DashboardState extends State<Dashboard> {
               leading: const Icon(
                 Icons.person_4_sharp,
               ),
-              title: const Text('Pilih Muazzin'),
+              title: const Text('Muazzin'),
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const Muazzin()),
                 );
               },
+            ),
+            const Divider(
+              thickness: 0.25,
+              color: Colors.grey,
+              indent: 20,
+              endIndent: 20,
             ),
             ListTile(
               leading: const Icon(
@@ -226,6 +232,12 @@ class _DashboardState extends State<Dashboard> {
                 );
               },
             ),
+            const Divider(
+              thickness: 0.25,
+              color: Colors.grey,
+              indent: 20,
+              endIndent: 20,
+            ),
           ],
         ),
       ),
@@ -235,7 +247,7 @@ class _DashboardState extends State<Dashboard> {
           child: Column(
             children: [
               if(loadingScreen == false) ... [
-                if (stateZone == null) ... [
+                if (stateZone == null) ... [                  
                   const StatesZonesDropdownWidget(),
 
                   Align(
@@ -260,11 +272,11 @@ class _DashboardState extends State<Dashboard> {
                           ); 
                         }
                       },
-                      child: const Text('Pilih'),
+                      child: const Text('Choose'),
                     ),
                   ),
                 ]
-                else if(stateZone != null) ... [                
+                else if(stateZone != null) ... [   
                   const PrayerTime(),
                 ]
                 else ... [
@@ -315,7 +327,7 @@ Widget _buildConfirmationDialog(BuildContext context) {
         mainAxisSize: MainAxisSize.min,
         children: [
           const Text(
-            'Amaran!',
+            'Warning!',
             style: TextStyle(
               color: Colors.white,
               fontSize: 20.0,
@@ -324,7 +336,7 @@ Widget _buildConfirmationDialog(BuildContext context) {
           ),
           const SizedBox(height: 16.0),
           const Text(
-            'Sila Pilih Zon',
+            'Please Choose Zone',
             style: TextStyle(
               color: Colors.white,
               fontSize: 16.0,

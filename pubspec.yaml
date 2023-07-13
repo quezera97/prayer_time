@@ -74,6 +74,10 @@ flutter:
     - assets/img/splashscreen.png
     - assets/img/loading.gif
     - assets/audio/
+    - assets/audio/AdhamAlSharqawe.mp3
+    - assets/audio/HamzaAlMajale.mp3
+    - assets/audio/MuhammadAbuAlMaqarem.mp3
+    - assets/audio/MuhammadAlDamradash.mp3
     - assets/audio/RabehIbnDarahAlJazairi.mp3
     - assets/audio/test.mp3
 

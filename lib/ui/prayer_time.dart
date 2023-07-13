@@ -29,8 +29,12 @@ class _PrayerTimeState extends State<PrayerTime> {
   String? stateZone;
   String prefsZone = '';
 
+  String? muazzin;
+  String prefsMuazzin = '';
+
   @override
   void initState() {
+    _getMuazzin();
     _checkZone();
 
     super.initState();
@@ -86,6 +90,22 @@ class _PrayerTimeState extends State<PrayerTime> {
         contentAlert: e.toString(),
       );
     }
+  }
+
+
+  Future<void> _getMuazzin() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    prefsMuazzin = prefs.getString('prefsMuazzin') ?? 'RabehIbnDarahAlJazairi';
+
+    String textMuazzin = prefsMuazzin.replaceAllMapped(RegExp(r'[A-Z][a-z]*'), (match) {
+      return '${match.group(0)} ';
+    });
+    textMuazzin = textMuazzin.trim();
+
+    setState(() {
+      muazzin = textMuazzin;
+    });
   }
 
   @override
@@ -175,6 +195,10 @@ class _PrayerTimeState extends State<PrayerTime> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          Center(child: Text('Muazzin: $muazzin')),
+
+                          const SizedBox(height: 10),
+
                           Center(child: CountdownClock(seconds: diffInSeconds)),
 
                           Container(
@@ -210,7 +234,7 @@ class _PrayerTimeState extends State<PrayerTime> {
                               ),
                             ),
                           ),
-                          Container(                          
+                          Container(
                             margin: const EdgeInsets.fromLTRB(20, 10, 0, 0),
                             color: numberOfItems == 3 ? const Color(0xff764abc) : Colors.transparent,
                             child: Text(

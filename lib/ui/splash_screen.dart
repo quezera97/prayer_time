@@ -6,12 +6,14 @@ import 'package:prayer_time/ui/dashboard.dart';
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
+  @override
   State<StatefulWidget> createState() => StartState();
 }
 
 class StartState extends State<SplashScreen> {
   ImageProvider preloadImage = const AssetImage('assets/img/splashscreen.png');
 
+  @override
   void initState() {
     super.initState();
     _startTime();
@@ -27,6 +29,7 @@ class StartState extends State<SplashScreen> {
         context, MaterialPageRoute(builder: (context) => const Dashboard()));
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(

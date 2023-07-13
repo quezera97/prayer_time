@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CountdownClock extends StatefulWidget {
   final int seconds;
@@ -18,8 +19,12 @@ class _CountdownClockState extends State<CountdownClock> {
   int _secondsRemaining = 0;
   final AudioPlayer _audioPlayer = AudioPlayer();
 
+  String prefsMuazzin = 'RabehIbnDarahAlJazairi';
+
   @override
   void initState() {
+    _getMuazzin();
+
     super.initState();
     _secondsRemaining = widget.seconds;
     _startTimer();
@@ -29,6 +34,7 @@ class _CountdownClockState extends State<CountdownClock> {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         if (_secondsRemaining > 0) {
+          _getMuazzin();
           _secondsRemaining--;
         } else {
           _timer.cancel();
@@ -37,10 +43,16 @@ class _CountdownClockState extends State<CountdownClock> {
       });
     });
   }
+
+  Future<void> _getMuazzin() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    prefsMuazzin = prefs.getString('prefsMuazzin') ?? 'RabehIbnDarahAlJazairi';
+  }
   
   Future<void> _playAudioAndNavigate() async {
-
-    String audioAsset = "assets/audio/RabehIbnDarahAlJazairi.mp3";
+    
+    String audioAsset = "assets/audio/$prefsMuazzin.mp3";
     await _audioPlayer.setAsset(audioAsset);
     await _audioPlayer.play();
 

@@ -1,5 +1,7 @@
 class MuazzinEnum {
-  static String get rabeh => 'RabehIbnDarahAlJazairi';
-  static String get adham => 'AdhamAlSharqawe';
-  static String get hamza => 'HamzaAlMajale';
+  static const String rabeh = 'RabehIbnDarahAlJazairi';
+  static const String adham = 'AdhamAlSharqawe';
+  static const String hamza = 'HamzaAlMajale';
+
+  static const List<String> values = [rabeh, adham, hamza];
 }

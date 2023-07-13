@@ -157,6 +157,7 @@ class _MyAppState extends State<MyApp> {
           case '/dashboard':
             return MaterialPageRoute(builder: (context) => const Dashboard());
         }
+        return null;
       },
       routes: {
         '/': (context) => const SplashScreen(),

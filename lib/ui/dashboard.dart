@@ -5,8 +5,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:prayer_time/api/location_time_zone.dart';
+import 'package:prayer_time/settings/settings.dart';
 import 'package:prayer_time/ui/muazzin.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../components/alert_pop_up.dart';
 import '../components/loading_indicator.dart';
 import '../zone/widget.dart';
 import '../zone/options.dart';
@@ -15,6 +17,7 @@ import 'prayer_time.dart';
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
 
+  @override
   State<Dashboard> createState() => _DashboardState();
 }
 
@@ -159,10 +162,14 @@ class _DashboardState extends State<Dashboard> {
       });
 
     } catch (e) {
-      print(e);
+      AlertPopUp(
+        titleAlert: 'Error!', 
+        contentAlert: e.toString(),
+      );
     }
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -191,15 +198,15 @@ class _DashboardState extends State<Dashboard> {
           children: [
             const DrawerHeader(
               decoration: BoxDecoration(
-                color: Color.fromARGB(255, 233, 109, 200),
+                color: Color(0xff764abc),
               ),
               child: Text('Drawer Header'),
             ),
             ListTile(
               leading: const Icon(
-                Icons.home,
+                Icons.person_4_sharp,
               ),
-              title: const Text('Choose Muazzin'),
+              title: const Text('Pilih Muazzin'),
               onTap: () {
                 Navigator.push(
                   context,
@@ -209,11 +216,14 @@ class _DashboardState extends State<Dashboard> {
             ),
             ListTile(
               leading: const Icon(
-                Icons.train,
+                Icons.settings,
               ),
-              title: const Text('Page 2'),
+              title: const Text('Setting'),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Settings()),
+                );
               },
             ),
           ],

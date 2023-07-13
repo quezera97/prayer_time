@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:prayer_time/api/today_prayer_time.dart';
 import 'package:prayer_time/components/countdown_clock.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../components/alert_pop_up.dart';
 import '../components/date_calc_prayer_time.dart';
 import '../components/loading_indicator.dart';
 
@@ -81,7 +81,10 @@ class _PrayerTimeState extends State<PrayerTime> {
       await prefs.setString('prefsIsha', isha);
 
     } catch (e) {
-      print(e);
+      AlertPopUp(
+        titleAlert: 'Error!', 
+        contentAlert: e.toString(),
+      );
     }
   }
 

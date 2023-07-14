@@ -3,7 +3,6 @@ import 'package:flutter_qiblah/flutter_qiblah.dart';
 
 import '../components/loading_indicator.dart';
 import 'qiblah_compass.dart';
-import 'qiblah_maps.dart';
 
 class Qiblah extends StatefulWidget {
   const Qiblah({super.key});

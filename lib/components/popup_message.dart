@@ -104,7 +104,6 @@ void warningPopUp(BuildContext context, message) {
   );
 }
 
-
 void successPopUpRedirect(BuildContext context, message, router) {
   showDialog(
     context: context,

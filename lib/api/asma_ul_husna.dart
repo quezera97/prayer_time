@@ -4,15 +4,22 @@ import 'dart:convert' as convert;
 Future<dynamic> fetchAsmaUlHusna() async {
 
   var url = Uri.parse('http://api.aladhan.com/v1/asmaAlHusna');
-  var responseAsmaUlHusna = await http.get(url);
 
-  if (responseAsmaUlHusna.statusCode == 200) {
-    var jsonResponse = convert.jsonDecode(responseAsmaUlHusna.body);
+  try {
+    var responseAsmaUlHusna = await http.get(url);
 
-    var asmaUlHusna = jsonResponse['data'];
+    if (responseAsmaUlHusna.statusCode == 200) {
+      var jsonResponse = convert.jsonDecode(responseAsmaUlHusna.body);
 
-    return asmaUlHusna;
-  } else {
-    throw Exception('Failed to fetch name');
+      var asmaUlHusna = jsonResponse['data'];
+
+      return asmaUlHusna;
+    } 
+    else {
+      return [];
+    }
+  } catch (e) {
+    return [];
   }
+  
 }

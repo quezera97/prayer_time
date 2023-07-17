@@ -1,14 +1,18 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:flutter/material.dart';
 import 'package:prayer_time/api/today_prayer_time.dart';
 import 'package:prayer_time/components/countdown_clock.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../components/alert_pop_up.dart';
 import '../components/date_calc_prayer_time.dart';
 import '../components/loading_indicator.dart';
+import '../components/popup_message.dart';
 import '../qiblah/qiblah.dart';
 
 class PrayerTime extends StatefulWidget {
-  const PrayerTime({super.key});
+  PrayerTime({super.key, required double height});
+
+  double? height;
 
   @override
   State<PrayerTime> createState() => _PrayerTimeState();
@@ -61,40 +65,33 @@ class _PrayerTimeState extends State<PrayerTime> {
     try {
       var prayerTime = await fetchPrayerTime(zone);
 
-      setState(() {
-        hijri = prayerTime['hijri'];
-        date = prayerTime['date'];
-        day = prayerTime['day'];
-        imsak = prayerTime['imsak'].substring(0, 5);
-        fajr = prayerTime['fajr'].substring(0, 5);
-        syuruk = prayerTime['syuruk'].substring(0, 5);
-        dhuhr = prayerTime['dhuhr'].substring(0, 5);
-        asr = prayerTime['asr'].substring(0, 5);
-        maghrib = prayerTime['maghrib'].substring(0, 5);
-        isha = prayerTime['isha'].substring(0, 5);
-      });
+      if(prayerTime != []){
+        setState(() {
+          hijri = prayerTime['hijri'];
+          date = prayerTime['date'];
+          day = prayerTime['day'];
+          imsak = prayerTime['imsak'].substring(0, 5);
+          fajr = prayerTime['fajr'].substring(0, 5);
+          syuruk = prayerTime['syuruk'].substring(0, 5);
+          dhuhr = prayerTime['dhuhr'].substring(0, 5);
+          asr = prayerTime['asr'].substring(0, 5);
+          maghrib = prayerTime['maghrib'].substring(0, 5);
+          isha = prayerTime['isha'].substring(0, 5);
+        });
 
-      SharedPreferences prefs = await SharedPreferences.getInstance();
+        SharedPreferences prefs = await SharedPreferences.getInstance();
 
-      await prefs.setString('prefsDate', date);
-      await prefs.setString('prefsImsak', imsak);
-      await prefs.setString('prefsFajr', fajr);
-      await prefs.setString('prefsSyuruk', syuruk);
-      await prefs.setString('prefsDhuhr', dhuhr);
-      await prefs.setString('prefsAsr', asr);
-      await prefs.setString('prefsMaghrib', maghrib);
-      await prefs.setString('prefsIsha', isha);
-
+        await prefs.setString('prefsDate', date);
+        await prefs.setString('prefsImsak', imsak);
+        await prefs.setString('prefsFajr', fajr);
+        await prefs.setString('prefsSyuruk', syuruk);
+        await prefs.setString('prefsDhuhr', dhuhr);
+        await prefs.setString('prefsAsr', asr);
+        await prefs.setString('prefsMaghrib', maghrib);
+        await prefs.setString('prefsIsha', isha);
+      }
     } catch (e) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return  AlertPopUp(
-            titleAlert: 'Error!', 
-            contentAlert: e.toString(),
-          );
-        },
-      ); 
+      warningPopUp(context, e.toString());
     }
   }
 
@@ -150,7 +147,7 @@ class _PrayerTimeState extends State<PrayerTime> {
       return Column(
         children: [
           SizedBox(
-            height: 100,
+            height: widget.height,
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -161,7 +158,7 @@ class _PrayerTimeState extends State<PrayerTime> {
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+                padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
                 child: Column(
                   children: [
                     Text('Hijri: $hijri'),
@@ -201,100 +198,134 @@ class _PrayerTimeState extends State<PrayerTime> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Center(child: Text('Muazzin: $muazzin')),
-
-                          const SizedBox(height: 10),
+                          const Center(
+                            child: Text('Next Prayer', 
+                              style: TextStyle(
+                                fontSize: 25,
+                                letterSpacing: 1.3,
+                              )
+                            )
+                          ),
 
                           Center(child: CountdownClock(seconds: diffInSeconds)),
 
                           const Center(
                             child: SizedBox(
-                              height: 210,
-                              width: 210,
+                              height: 250,
+                              width: 250,
                               child: Qiblah(),
                             ),
                           ),
 
+                          const SizedBox(height: 10),
+
                           Center(
                             child: Column(
                               children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      margin: const EdgeInsets.fromLTRB(0, 5, 11, 0),
+                                      color: numberOfItems == 7 ? const Color(0xff764abc) : Colors.transparent,
+                                      child: Text(
+                                        '\u0625\u0645\u0633\u0627\u0643: $imsak',
+                                        style: TextStyle(
+                                          color: numberOfItems == 7 ? Colors.white : Colors.black,
+                                          fontSize: 19,
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      margin: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                                      color: numberOfItems == 1 ? const Color(0xff764abc) : Colors.transparent,
+                                      child: Text(
+                                        '\u0635\u0628\u062d: $fajr',
+                                        style: TextStyle(
+                                          color: numberOfItems == 1 ? Colors.white : Colors.black,
+                                          fontSize: 19,
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      margin: const EdgeInsets.fromLTRB(11, 5, 0, 0),
+                                      color: numberOfItems == 2 ? const Color(0xff764abc) : Colors.transparent,
+                                      child: Text(
+                                        '\u0634\u0631\u0648\u0642: $syuruk',
+                                        style: TextStyle(
+                                          color: numberOfItems == 2 ? Colors.white : Colors.black,
+                                          fontSize: 19,
+                                        ),
+                                      ),
+                                    ), 
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      margin: const EdgeInsets.fromLTRB(0, 5, 11, 0),
+                                      color: numberOfItems == 3 ? const Color(0xff764abc) : Colors.transparent,
+                                      child: Text(
+                                        '\u0638\u0647\u0631: $dhuhr',
+                                        style: TextStyle(
+                                          color: numberOfItems == 3 ? Colors.white : Colors.black,
+                                          fontSize: 19,
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      margin: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                                      color: numberOfItems == 4 ? const Color(0xff764abc) : Colors.transparent,
+                                      child: Text(
+                                        '\u0639\u0635\u0631: $asr',
+                                        style: TextStyle(
+                                          color: numberOfItems == 4 ? Colors.white : Colors.black,
+                                          fontSize: 19,
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      margin: const EdgeInsets.fromLTRB(11, 5, 0, 0),
+                                      color: numberOfItems == 5 ? const Color(0xff764abc) : Colors.transparent,
+                                      child: Text(
+                                        '\u0645\u063a\u0631\u0628: $maghrib',
+                                        style: TextStyle(
+                                          color: numberOfItems == 5 ? Colors.white : Colors.black,
+                                          fontSize: 19,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                                 Container(
-                                  margin: const EdgeInsets.fromLTRB(20, 10, 0, 0),
-                                  color: numberOfItems == 7 ? const Color(0xff764abc) : Colors.transparent,
+                                  margin: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                                  color: numberOfItems == 6 ? const Color(0xff764abc) : Colors.transparent,
                                   child: Text(
-                                    'Imsak: $imsak',
+                                    '\u0639\u0634\u0627\u0621: $isha',
                                     style: TextStyle(
-                                      color: numberOfItems == 7 ? Colors.white : Colors.black,
-                                      fontSize: 16,
+                                      color: numberOfItems == 6 ? Colors.white : Colors.black,
+                                      fontSize: 19,
                                     ),
                                   ),
                                 ),
-                                Container(
-                                  margin: const EdgeInsets.fromLTRB(20, 10, 0, 0),
-                                  color: numberOfItems == 1 ? const Color(0xff764abc) : Colors.transparent,
-                                  child: Text(
-                                    'Fajr: $fajr',
-                                    style: TextStyle(
-                                      color: numberOfItems == 1 ? Colors.white : Colors.black,
-                                      fontSize: 16,
+                                const SizedBox(height: 20),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                                      child: Text( 
+                                        muazzin ?? '',
+                                        style: const TextStyle(
+                                          color: Colors.black54,
+                                          fontStyle: FontStyle.italic,
+                                          fontSize: 16.5,
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ),
-                                Container(
-                                  margin: const EdgeInsets.fromLTRB(20, 10, 0, 0),
-                                  color: numberOfItems == 2 ? const Color(0xff764abc) : Colors.transparent,
-                                  child: Text(
-                                    'Syuruk: $syuruk',
-                                    style: TextStyle(
-                                      color: numberOfItems == 2 ? Colors.white : Colors.black,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),                                    
-                                Container(
-                                  margin: const EdgeInsets.fromLTRB(20, 10, 0, 0),
-                                  color: numberOfItems == 3 ? const Color(0xff764abc) : Colors.transparent,
-                                  child: Text(
-                                    'Dhuhr: $dhuhr',
-                                    style: TextStyle(
-                                      color: numberOfItems == 3 ? Colors.white : Colors.black,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  margin: const EdgeInsets.fromLTRB(20, 10, 0, 0),
-                                  color: numberOfItems == 4 ? const Color(0xff764abc) : Colors.transparent,
-                                  child: Text(
-                                    'Asr: $asr',
-                                    style: TextStyle(
-                                      color: numberOfItems == 4 ? Colors.white : Colors.black,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  margin: const EdgeInsets.fromLTRB(20, 10, 0, 0),
-                                  color: numberOfItems == 5 ? const Color(0xff764abc) : Colors.transparent,
-                                  child: Text(
-                                    'Maghrib: $maghrib',
-                                    style: TextStyle(
-                                      color: numberOfItems == 5 ? Colors.white : Colors.black,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                            margin: const EdgeInsets.fromLTRB(20, 10, 0, 0),
-                                            color: numberOfItems == 6 ? const Color(0xff764abc) : Colors.transparent,
-                                            child: Text(
-                                              'Isha: $isha',
-                                              style: TextStyle(
-                                                color: numberOfItems == 6 ? Colors.white : Colors.black,
-                                                fontSize: 16,
-                                              ),
-                                            ),
-                                          ),
                               ],
                             )
                           )

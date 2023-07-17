@@ -7,10 +7,11 @@ import 'package:geolocator/geolocator.dart';
 import 'package:prayer_time/api/location_time_zone.dart';
 import 'package:prayer_time/settings/settings.dart';
 import 'package:prayer_time/ui/asma_ul_husna.dart';
+import 'package:prayer_time/ui/dashboard_overseas.dart';
 import 'package:prayer_time/ui/muazzin.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../components/alert_pop_up.dart';
 import '../components/loading_indicator.dart';
+import '../components/popup_message.dart';
 import '../zone/widget.dart';
 import '../zone/options.dart';
 import 'prayer_time.dart';
@@ -134,7 +135,30 @@ class _DashboardState extends State<Dashboard> {
     //   lat = position.latitude.toString();
     // });
 
-    await _loadTimeZone(long, lat);
+    // bool inMalaysia = await _checkInMalaysia(long, lat);
+    bool inMalaysia = await _checkInMalaysia('2.349014', '48.864716');
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('prefsInMalaysia', inMalaysia);
+
+    if(inMalaysia){
+      await _loadTimeZone(long, lat);
+    }
+    else{
+      errorPopUpRedirect(context, 'You are not in Malaysia', const DashboardOverseas());
+    }
+
+  }
+
+  Future<bool> _checkInMalaysia(String long, String lat) async {
+    final double latitude = double.parse(lat);
+    final double longitude = double.parse(long);
+
+    if (latitude < 1.0 || latitude > 7.5 || longitude < 100.0 || longitude > 119.0){
+      return false;
+    }
+
+    return true;
   }
 
   Future<void> _loadTimeZone(String long, String lat) async {
@@ -163,20 +187,20 @@ class _DashboardState extends State<Dashboard> {
       });
 
     } catch (e) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return  AlertPopUp(
-            titleAlert: 'Error!', 
-            contentAlert: e.toString(),
-          );
-        },
-      );     
+      warningPopUp(context, e.toString());    
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final double remainingHeight = MediaQuery.of(context).size.height -
+    MediaQuery.of(context).padding.top - // Subtracting the top padding
+    MediaQuery.of(context).padding.bottom - // Subtracting the bottom padding
+    MediaQuery.of(context).viewInsets.bottom - // Subtracting the bottom view insets
+    10 - // SizedBox(height: 10)
+    MediaQuery.of(context).size.height / 1.5 - // Second SizedBox height
+    50.0; // Height of the bottomNavigationBar
+    
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -271,7 +295,7 @@ class _DashboardState extends State<Dashboard> {
           child: Column(
             children: [
               if(loadingScreen == false) ... [
-                if (stateZone == null) ... [                  
+                if (stateZone == null || stateZone!.isEmpty) ... [                  
                   const StatesZonesDropdownWidget(),
 
                   Align(
@@ -300,8 +324,8 @@ class _DashboardState extends State<Dashboard> {
                     ),
                   ),
                 ]
-                else if(stateZone != null) ... [   
-                  const PrayerTime(),
+                else if(stateZone != null || stateZone!.isNotEmpty) ... [   
+                  PrayerTime(height: remainingHeight),
                 ]
                 else ... [
                   loadingGifIndicator( gif: 'assets/img/loading.gif', message: 'Loading data...'),
@@ -335,6 +359,7 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 }
+
 
 Widget _buildConfirmationDialog(BuildContext context) {
   return Dialog(

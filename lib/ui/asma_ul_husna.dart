@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../api/asma_ul_husna.dart';
 import '../components/alert_pop_up.dart';
+import '../components/loading_indicator.dart';
 
 class AsmaUlHusna extends StatefulWidget {
   const AsmaUlHusna({super.key});
@@ -22,7 +23,6 @@ class _AsmaUlHusnaState extends State<AsmaUlHusna> {
   }
 
   void _getAsmaUlHusna() async {
-
     var apiAsmaUlHusna = await fetchAsmaUlHusna();
 
     setState(() {
@@ -42,7 +42,9 @@ class _AsmaUlHusnaState extends State<AsmaUlHusna> {
         ),
         backgroundColor: const Color(0xff764abc),
       ),
-      body: GridView.count(
+      body: listAsmaUlHusna == [] 
+        ? loadingGifIndicator( gif: 'assets/img/loading.gif', message: 'Loading data...')
+        : GridView.count(
         padding: const EdgeInsets.all(10),
         crossAxisCount: 3,
         children: List.generate(listAsmaUlHusna.length, (index) {

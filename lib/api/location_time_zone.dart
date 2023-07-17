@@ -3,18 +3,21 @@ import 'dart:convert' as convert;
 
 Future<dynamic> fetchTimeZone(String long, String lat) async {
 
-  var url = Uri.parse(
-      'https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$long');
-  var responseLatLong = await http.get(url);
+  var url = Uri.parse('https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$long');
 
-  if (responseLatLong.statusCode == 200) {
-    var jsonResponse = convert.jsonDecode(responseLatLong.body);
-    // var apiDisplayName = jsonResponse['display_name'];
-    var apiState = jsonResponse['address']['state'];
-    // var apiPostcode = jsonResponse['address']['postcode'];
+  try {
+    var responseLatLong = await http.get(url);
 
-    return apiState;
-  } else {
-    throw Exception('Failed to fetch time zone');
+    if (responseLatLong.statusCode == 200) {
+      var jsonResponse = convert.jsonDecode(responseLatLong.body);
+      var apiState = jsonResponse['address']['state'];
+
+      return apiState;
+    } else {
+      return '';
+    }
+  } catch (e) {
+    return '';
   }
+  
 }

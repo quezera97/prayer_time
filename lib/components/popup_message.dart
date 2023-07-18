@@ -186,8 +186,8 @@ void errorPopUpRedirect(BuildContext context, message, router) {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  onPressed: () {
-                      Navigator.pushReplacement(context,
+                  onPressed: () async {
+                      await Navigator.pushReplacement(context,
                       MaterialPageRoute(builder: (context) => router));
                     },
                   child: const Text(

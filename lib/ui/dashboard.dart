@@ -10,6 +10,7 @@ import 'package:prayer_time/ui/asma_ul_husna.dart';
 import 'package:prayer_time/ui/dashboard_overseas.dart';
 import 'package:prayer_time/ui/muazzin.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../components/capitalize_word.dart';
 import '../components/loading_indicator.dart';
 import '../components/popup_message.dart';
 import '../zone/widget.dart';
@@ -77,7 +78,6 @@ class _DashboardState extends State<Dashboard> {
       else{
         requestPermission = true;
       }
-
       if(requestPermission == true){
         await _getLocation();
       }
@@ -135,19 +135,19 @@ class _DashboardState extends State<Dashboard> {
     //   lat = position.latitude.toString();
     // });
 
-    // bool inMalaysia = await _checkInMalaysia(long, lat);
-    bool inMalaysia = await _checkInMalaysia('2.349014', '48.864716');
+    bool inMalaysia = await _checkInMalaysia(long, lat);
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool('prefsInMalaysia', inMalaysia);
+    await prefs.setString('prefsLongitude', long);
+    await prefs.setString('prefsLatitude', lat);
 
     if(inMalaysia){
       await _loadTimeZone(long, lat);
     }
-    else{
+    else {
       errorPopUpRedirect(context, 'You are not in Malaysia', const DashboardOverseas());
-    }
-
+    } 
   }
 
   Future<bool> _checkInMalaysia(String long, String lat) async {
@@ -164,27 +164,46 @@ class _DashboardState extends State<Dashboard> {
   Future<void> _loadTimeZone(String long, String lat) async {
     try {
 
-      stateZone = await fetchTimeZone(long, lat);      
-
       String matchingZone = '';
-      
+      String? matchingZoneWord;
+
+      stateZone = await fetchTimeZone(long, lat);   
+        // for (var zoneOption in allZoneOptions) {
+        //   if (zoneOption['text']!.toLowerCase().contains(stateZone!.toLowerCase())) {
+        //     matchingZone = zoneOption['value']!;
+        //     break;
+        //   }
+        // }
+
+      List<String> stateZoneWords = stateZone!.toLowerCase().split(', ');
+
       for (var zoneOption in allZoneOptions) {
-        if (zoneOption['text']!.toLowerCase().contains(stateZone!.toLowerCase())) {
-          matchingZone = zoneOption['value']!;
+        for (var word in stateZoneWords) {
+          if (zoneOption['text']!.toLowerCase().contains(word)) {
+            matchingZone = zoneOption['value']!;
+            matchingZoneWord = word;
+            break;
+          }
+        }
+        
+        if (matchingZoneWord != null && matchingZone.isNotEmpty) {
+          matchingZoneWord = capitalize(matchingZoneWord);
           break;
         }
       }
+
+      stateZone = matchingZoneWord;
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('prefsZone', matchingZone);
       await prefs.setString('prefsStateZone', stateZone!);
       await prefs.setString('prefsLongitude', long);
       await prefs.setString('prefsLatitude', lat);
-
+      
       setState(() {
         stateZone;
         loadingScreen = false;
-      });
+      });  
 
     } catch (e) {
       warningPopUp(context, e.toString());    
@@ -328,11 +347,11 @@ class _DashboardState extends State<Dashboard> {
                   PrayerTime(height: remainingHeight),
                 ]
                 else ... [
-                  loadingGifIndicator( gif: 'assets/img/loading.gif', message: 'Loading data...'),
+                  loadingGifIndicator( gif: 'assets/img/loading.gif', message: 'Loading data1...'),
                 ]
               ]
               else ... [
-                loadingGifIndicator( gif: 'assets/img/loading.gif', message: 'Loading data...'),
+                loadingGifIndicator( gif: 'assets/img/loading.gif', message: 'Loading data2...'),
               ]
             ],
           ),

@@ -32,7 +32,7 @@ class _QiblahState extends State<Qiblah> {
         if (snapshot.data!){
           return const QiblahCompass();
         } else {
-          return loadingGifIndicator( gif: 'assets/img/loading.gif', message: 'Loading data...');
+          return loadingGifIndicator( gif: 'assets/img/loading.gif', message: 'Loading data4...');
         }
       },
     );

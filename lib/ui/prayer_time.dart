@@ -7,9 +7,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../components/date_calc_prayer_time.dart';
 import '../components/loading_indicator.dart';
 import '../components/popup_message.dart';
+import '../enums/prayer_time.dart';
 import '../qiblah/qiblah.dart';
 
-class PrayerTime extends StatefulWidget {
+class PrayerTime extends StatefulWidget {  
   PrayerTime({super.key, required double height});
 
   double? height;
@@ -30,8 +31,15 @@ class _PrayerTimeState extends State<PrayerTime> {
   String asr = '';
   String maghrib = '';
   String isha = '';
+
+  String imsakName = PrayerTimeEnum.imsak;
+  String fajrName = PrayerTimeEnum.fajr;
+  String syurukName = PrayerTimeEnum.syuruk;
+  String dhuhrName = PrayerTimeEnum.dhuhr;
+  String asrName = PrayerTimeEnum.asr;
+  String maghribName = PrayerTimeEnum.maghrib;
+  String ishaName = PrayerTimeEnum.isha;
   
-  String? stateZone;
   String prefsZone = '';
 
   String? muazzin;
@@ -39,8 +47,8 @@ class _PrayerTimeState extends State<PrayerTime> {
 
   @override
   void initState() {
-    _getMuazzin();
     _checkZone();
+    _getMuazzin();
 
     super.initState();
   }
@@ -52,11 +60,6 @@ class _PrayerTimeState extends State<PrayerTime> {
 
     if(prefsZone.isNotEmpty){
       _loadPrayerTime(prefsZone);
-    }
-    else{
-      setState(() {
-        stateZone = null;
-      });
     }
 
   }
@@ -229,7 +232,7 @@ class _PrayerTimeState extends State<PrayerTime> {
                                       margin: const EdgeInsets.fromLTRB(0, 5, 11, 0),
                                       color: numberOfItems == 7 ? const Color(0xff764abc) : Colors.transparent,
                                       child: Text(
-                                        '\u0625\u0645\u0633\u0627\u0643: $imsak',
+                                        '$imsakName: $imsak',
                                         style: TextStyle(
                                           color: numberOfItems == 7 ? Colors.white : Colors.black,
                                           fontSize: 19,
@@ -240,7 +243,7 @@ class _PrayerTimeState extends State<PrayerTime> {
                                       margin: const EdgeInsets.fromLTRB(0, 5, 0, 0),
                                       color: numberOfItems == 1 ? const Color(0xff764abc) : Colors.transparent,
                                       child: Text(
-                                        '\u0635\u0628\u062d: $fajr',
+                                        '$fajrName: $fajr',
                                         style: TextStyle(
                                           color: numberOfItems == 1 ? Colors.white : Colors.black,
                                           fontSize: 19,
@@ -251,7 +254,7 @@ class _PrayerTimeState extends State<PrayerTime> {
                                       margin: const EdgeInsets.fromLTRB(11, 5, 0, 0),
                                       color: numberOfItems == 2 ? const Color(0xff764abc) : Colors.transparent,
                                       child: Text(
-                                        '\u0634\u0631\u0648\u0642: $syuruk',
+                                        '$syurukName: $syuruk',
                                         style: TextStyle(
                                           color: numberOfItems == 2 ? Colors.white : Colors.black,
                                           fontSize: 19,
@@ -267,7 +270,7 @@ class _PrayerTimeState extends State<PrayerTime> {
                                       margin: const EdgeInsets.fromLTRB(0, 5, 11, 0),
                                       color: numberOfItems == 3 ? const Color(0xff764abc) : Colors.transparent,
                                       child: Text(
-                                        '\u0638\u0647\u0631: $dhuhr',
+                                        '$dhuhrName: $dhuhr',
                                         style: TextStyle(
                                           color: numberOfItems == 3 ? Colors.white : Colors.black,
                                           fontSize: 19,
@@ -278,7 +281,7 @@ class _PrayerTimeState extends State<PrayerTime> {
                                       margin: const EdgeInsets.fromLTRB(0, 5, 0, 0),
                                       color: numberOfItems == 4 ? const Color(0xff764abc) : Colors.transparent,
                                       child: Text(
-                                        '\u0639\u0635\u0631: $asr',
+                                        '$asrName: $asr',
                                         style: TextStyle(
                                           color: numberOfItems == 4 ? Colors.white : Colors.black,
                                           fontSize: 19,
@@ -289,7 +292,7 @@ class _PrayerTimeState extends State<PrayerTime> {
                                       margin: const EdgeInsets.fromLTRB(11, 5, 0, 0),
                                       color: numberOfItems == 5 ? const Color(0xff764abc) : Colors.transparent,
                                       child: Text(
-                                        '\u0645\u063a\u0631\u0628: $maghrib',
+                                        '$maghribName: $maghrib',
                                         style: TextStyle(
                                           color: numberOfItems == 5 ? Colors.white : Colors.black,
                                           fontSize: 19,
@@ -302,7 +305,7 @@ class _PrayerTimeState extends State<PrayerTime> {
                                   margin: const EdgeInsets.fromLTRB(0, 5, 0, 0),
                                   color: numberOfItems == 6 ? const Color(0xff764abc) : Colors.transparent,
                                   child: Text(
-                                    '\u0639\u0634\u0627\u0621: $isha',
+                                    '$ishaName: $isha',
                                     style: TextStyle(
                                       color: numberOfItems == 6 ? Colors.white : Colors.black,
                                       fontSize: 19,
@@ -344,7 +347,7 @@ class _PrayerTimeState extends State<PrayerTime> {
       );
     }
     else{
-      return loadingGifIndicator( gif: 'assets/img/loading.gif', message: 'Loading data...');
+      return loadingGifIndicator( gif: 'assets/img/loading.gif', message: 'Loading data3...');
     }
   }
 }

@@ -16,8 +16,13 @@ class SplashScreen extends StatefulWidget {
 class StartState extends State<SplashScreen> {
   ImageProvider preloadImage = const AssetImage('assets/img/splashscreen.png');
 
-  bool prefsInMalaysia = true;
+  bool? prefsInMalaysia;
   bool? inMalaysia;
+
+  String? prefsLongitude;
+  String? long;
+  String? prefsLatitude;
+  String? lat;
 
   @override
   void initState() {
@@ -28,10 +33,14 @@ class StartState extends State<SplashScreen> {
   _getInitPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    prefsInMalaysia = prefs.getBool('prefsInMalaysia')!;
+    prefsInMalaysia = prefs.getBool('prefsInMalaysia') ?? true;
+    prefsLongitude = prefs.getString('prefsLongitude');
+    prefsLatitude = prefs.getString('prefsLatitude');
 
     setState(() {
       inMalaysia = prefsInMalaysia;
+      long = prefsLongitude;
+      lat = prefsLatitude;
     });
 
     await _startTime(inMalaysia);
@@ -53,8 +62,8 @@ class StartState extends State<SplashScreen> {
         context, MaterialPageRoute(builder: (context) => const Dashboard()));
   }
 
-  routeDashboardOversea() {
-    Navigator.pushReplacement(
+  routeDashboardOversea() async {
+    await Navigator.pushReplacement(
       context, MaterialPageRoute(builder: (context) => const DashboardOverseas()));
   } 
 

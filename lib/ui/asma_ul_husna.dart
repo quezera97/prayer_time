@@ -14,6 +14,7 @@ class AsmaUlHusna extends StatefulWidget {
 class _AsmaUlHusnaState extends State<AsmaUlHusna> {
   String searchedValue = '';
   List<dynamic> listAsmaUlHusna = [];
+  bool finishLoadAsmaUlHusna = false;
 
   @override
   void initState() {
@@ -26,8 +27,9 @@ class _AsmaUlHusnaState extends State<AsmaUlHusna> {
     var apiAsmaUlHusna = await fetchAsmaUlHusna();
 
     setState(() {
+      finishLoadAsmaUlHusna = true;
       listAsmaUlHusna = apiAsmaUlHusna;
-    });    
+    });
   }
   
   @override
@@ -42,7 +44,7 @@ class _AsmaUlHusnaState extends State<AsmaUlHusna> {
         ),
         backgroundColor: const Color(0xff764abc),
       ),
-      body: listAsmaUlHusna == [] 
+      body: finishLoadAsmaUlHusna == false
         ? loadingGifIndicator( gif: 'assets/img/loading.gif', message: 'Loading data...')
         : GridView.count(
         padding: const EdgeInsets.all(10),

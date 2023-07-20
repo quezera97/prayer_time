@@ -15,6 +15,7 @@ import '../components/loading_indicator.dart';
 import '../components/popup_message.dart';
 import '../zone/widget.dart';
 import '../zone/options.dart';
+import 'al_quran.dart';
 import 'prayer_time.dart';
 
 class Dashboard extends StatefulWidget {
@@ -245,11 +246,30 @@ class _DashboardState extends State<Dashboard> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
+            DrawerHeader(
+              decoration: const BoxDecoration(
                 color: Color(0xff764abc),
               ),
-              child: Text('Drawer Header'),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  SizedBox(
+                    height: 70,
+                    width: 70,
+                    child: Image.asset('assets/img/logo.png'),
+                  ),
+                  const Text(
+                    'PRAYER TIME', 
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.white
+                    )
+                  ),
+                  // const Spacer(),
+                  // const Text('Build Version: 1.0.0', style: TextStyle(color: Colors.white)),
+                ],
+              ),
             ),
             ListTile(
               leading: const Icon(
@@ -278,6 +298,42 @@ class _DashboardState extends State<Dashboard> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const AsmaUlHusna()),
+                );
+              },
+            ),
+            const Divider(
+              thickness: 0.25,
+              color: Colors.grey,
+              indent: 20,
+              endIndent: 20,
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.language,
+              ),
+              title: const Text('Overseas Prayer Time'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const DashboardOverseas()),
+                );
+              },
+            ),
+            const Divider(
+              thickness: 0.25,
+              color: Colors.grey,
+              indent: 20,
+              endIndent: 20,
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.collections_bookmark,
+              ),
+              title: const Text('Al-Quran'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AlQuran()),
                 );
               },
             ),

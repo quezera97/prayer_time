@@ -26,10 +26,13 @@ class _AsmaUlHusnaState extends State<AsmaUlHusna> {
   void _getAsmaUlHusna() async {
     var apiAsmaUlHusna = await fetchAsmaUlHusna();
 
-    setState(() {
-      finishLoadAsmaUlHusna = true;
-      listAsmaUlHusna = apiAsmaUlHusna;
-    });
+    if(apiAsmaUlHusna.isNotEmpty || apiAsmaUlHusna != []){
+      setState(() {
+        finishLoadAsmaUlHusna = true;
+        listAsmaUlHusna = apiAsmaUlHusna;
+      });
+    }
+
   }
   
   @override

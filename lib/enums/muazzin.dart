@@ -7,3 +7,11 @@ class MuazzinEnum {
 
   static const List<String> values = [rabeh, adham, hamza, damradash, maqarem];
 }
+
+// class MuazzinEnum {
+//   static String get rabeh => 'RabehIbnDarahAlJazairi';
+//   static String get adham => 'AdhamAlSharqawe';
+//   static String get hamza => 'HamzaAlMajale';
+//   static String get damradash => 'MuhammadAlDamradash';
+//   static String get maqarem => 'MuhammadAbuAlMaqarem';
+// }

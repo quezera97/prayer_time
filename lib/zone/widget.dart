@@ -48,7 +48,7 @@ class _StatesZonesDropdownWidgetState extends State<StatesZonesDropdownWidget> {
               menuMaxHeight: 200,
               value: _selectedValueStates == '' ? null : _selectedValueStates,
               isExpanded: true,
-              hint: const Text("Sila Pilih Negeri"),
+              hint: const Text("Choose a State"),
               items: statesOptions
                   .map((item) => DropdownMenuItem(
                         value: item['option'],

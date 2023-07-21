@@ -16,9 +16,26 @@ Future fetchRandomSurah() async {
       var jsonResponse = convert.jsonDecode(response.body);
       var apiRandomSurah = jsonResponse['data'];
 
-      print(apiRandomSurah);
-
       return apiRandomSurah;
+    } else {
+      return [];
+    }
+  } catch (e) {
+    return [];
+  } 
+}
+
+Future fetchSelectedSurah(surah) async {
+
+  var url = Uri.parse("https://api.alquran.cloud/v1/surah/$surah");
+
+  try {
+    var response = await http.get(url);
+    if (response.statusCode == 200) {
+      var jsonResponse = convert.jsonDecode(response.body);
+      var apiSelectedSurah = jsonResponse['data'];
+
+      return apiSelectedSurah;
     } else {
       return [];
     }

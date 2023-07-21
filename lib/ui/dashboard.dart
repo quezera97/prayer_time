@@ -168,44 +168,46 @@ class _DashboardState extends State<Dashboard> {
       String matchingZone = '';
       String? matchingZoneWord;
 
-      stateZone = await fetchTimeZone(long, lat);   
-        // for (var zoneOption in allZoneOptions) {
-        //   if (zoneOption['text']!.toLowerCase().contains(stateZone!.toLowerCase())) {
-        //     matchingZone = zoneOption['value']!;
-        //     break;
-        //   }
-        // }
+      stateZone = await fetchTimeZone(long, lat);
 
-      List<String> stateZoneWords = stateZone!.toLowerCase().split(', ');
+      if(stateZone!.isNotEmpty || stateZone != '' ){
+          // for (var zoneOption in allZoneOptions) {
+          //   if (zoneOption['text']!.toLowerCase().contains(stateZone!.toLowerCase())) {
+          //     matchingZone = zoneOption['value']!;
+          //     break;
+          //   }
+          // }
 
-      for (var zoneOption in allZoneOptions) {
-        for (var word in stateZoneWords) {
-          if (zoneOption['text']!.toLowerCase().contains(word)) {
-            matchingZone = zoneOption['value']!;
-            matchingZoneWord = word;
+        List<String> stateZoneWords = stateZone!.toLowerCase().split(', ');
+
+        for (var zoneOption in allZoneOptions) {
+          for (var word in stateZoneWords) {
+            if (zoneOption['text']!.toLowerCase().contains(word)) {
+              matchingZone = zoneOption['value']!;
+              matchingZoneWord = word;
+              break;
+            }
+          }
+          
+          if (matchingZoneWord != null && matchingZone.isNotEmpty) {
+            matchingZoneWord = capitalize(matchingZoneWord);
             break;
           }
         }
+
+        stateZone = matchingZoneWord;
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('prefsZone', matchingZone);
+        await prefs.setString('prefsStateZone', stateZone!);
+        await prefs.setString('prefsLongitude', long);
+        await prefs.setString('prefsLatitude', lat);
         
-        if (matchingZoneWord != null && matchingZone.isNotEmpty) {
-          matchingZoneWord = capitalize(matchingZoneWord);
-          break;
-        }
+        setState(() {
+          stateZone;
+          loadingScreen = false;
+        });
       }
-
-      stateZone = matchingZoneWord;
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('prefsZone', matchingZone);
-      await prefs.setString('prefsStateZone', stateZone!);
-      await prefs.setString('prefsLongitude', long);
-      await prefs.setString('prefsLatitude', lat);
-      
-      setState(() {
-        stateZone;
-        loadingScreen = false;
-      });  
-
     } catch (e) {
       warningPopUp(context, e.toString());    
     }

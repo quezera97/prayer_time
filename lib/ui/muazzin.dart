@@ -1,10 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:file_picker/file_picker.dart';
 
 import '../components/leading_icon_text.dart';
 import '../enums/muazzin.dart';
-
 class Muazzin extends StatefulWidget {
   const Muazzin({super.key});
 
@@ -63,9 +65,19 @@ class _MuazzinState extends State<Muazzin> {
       backgroundColor: const Color(0xffffffff),
       appBar: AppBar(
         centerTitle: true,
-        title: const Text(
-          'Muazzin',
-        ),
+        title: const Text('Muazzin'),
+        // actions: [
+        //   Row(
+        //     children: [
+        //       IconButton(
+        //         onPressed: () async {
+        //           _addMuazzin();
+        //         },
+        //         icon: const Icon( Icons.add, color: Colors.white )
+        //       )
+        //     ],
+        //   )
+        // ],
         backgroundColor: const Color(0xff764abc),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -142,8 +154,8 @@ class PlayAudio extends StatefulWidget {
   final String muazzin;
   final List<AudioPlayer> audioPlayers;
 
-  const PlayAudio({Key? key, required this.muazzin, required this.audioPlayers})
-      : super(key: key);
+  const PlayAudio({super.key, required this.muazzin, required this.audioPlayers});
+
 
   @override
   State<PlayAudio> createState() => _PlayAudioState();
@@ -189,7 +201,7 @@ class _PlayAudioState extends State<PlayAudio> {
           });
         }
       },
-      child: const Icon(Icons.play_circle_outline),
+      child: isAudioPlaying == false ? const Icon(Icons.play_circle_outline) : const Icon(Icons.stop),
     );
   }
 

@@ -191,10 +191,12 @@ class _DashboardOverseasState extends State<DashboardOverseas> {
 
       stateZone = await fetchTimeZone(long, lat);      
 
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('prefsStateZone', stateZone!);
-      await prefs.setString('prefsLongitude', long);
-      await prefs.setString('prefsLatitude', lat);
+      if(stateZone!.isNotEmpty || stateZone != '' ){
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('prefsStateZone', stateZone!);
+        await prefs.setString('prefsLongitude', long);
+        await prefs.setString('prefsLatitude', lat);
+      }
 
       setState(() {
         stateZone;

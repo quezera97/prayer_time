@@ -1,4 +1,5 @@
-import 'dart:io';
+
+// ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
@@ -6,6 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../components/leading_icon_text.dart';
 import '../enums/muazzin.dart';
+import 'dashboard.dart';
+import 'dashboard_overseas.dart';
 class Muazzin extends StatefulWidget {
   const Muazzin({super.key});
 
@@ -56,6 +59,8 @@ class _MuazzinState extends State<Muazzin> {
     }
     super.dispose();
   }
+
+  bool? prefsInMalaysia;
   
   @override
   Widget build(BuildContext context) {
@@ -65,27 +70,26 @@ class _MuazzinState extends State<Muazzin> {
       appBar: AppBar(
         centerTitle: true,
         title: const Text('Muazzin'),
-        // actions: [
-        //   Row(
-        //     children: [
-        //       IconButton(
-        //         onPressed: () async {
-        //           _addMuazzin();
-        //         },
-        //         icon: const Icon( Icons.add, color: Colors.white )
-        //       )
-        //     ],
-        //   )
-        // ],
         backgroundColor: const Color(0xff764abc),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () {
+          onPressed: () async {
             for (var audioPlayer in audioPlayers) {
               audioPlayer.stop();
             }
 
-            Navigator.pushReplacementNamed(context, '/dashboard');
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+
+            prefsInMalaysia = prefs.getBool('prefsInMalaysia') ?? true;
+
+            if(prefsInMalaysia!){              
+              await Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (context) => const Dashboard()));
+            }
+            else{
+              await Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (context) => const DashboardOverseas()));
+            }
           },
         ),
       ),

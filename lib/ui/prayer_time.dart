@@ -347,7 +347,7 @@ class _PrayerTimeState extends State<PrayerTime> {
       );
     }
     else{
-      return loadingGifIndicator( gif: 'assets/img/loading.gif', message: 'Loading data3...');
+      return loadingGifIndicator( gif: 'assets/img/loading.gif', message: 'Loading data...');
     }
   }
 }

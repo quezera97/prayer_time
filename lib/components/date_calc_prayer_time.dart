@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 int dateParsing(List<String> prayerTimes, String date, List<String> nameOfPrayer) {
+ 
   TimeOfDay currentTime = TimeOfDay.now();
   DateTime parsedDate = DateFormat("dd-MMM-yyyy").parse(date);
   String formattedDate = DateFormat("yyyy-MM-dd").format(parsedDate);
@@ -32,35 +33,6 @@ int dateParsing(List<String> prayerTimes, String date, List<String> nameOfPrayer
   int numberOfItems = prayersGreaterThanCurrentTime.length;
 
   return numberOfItems;
-}
-
-bool dateParsingMain(List<String> prayerTimes, String date) {
-  TimeOfDay currentTime = TimeOfDay.now();
-  DateTime parsedDate = DateFormat("dd-MMM-yyyy").parse(date);
-  String formattedDate = DateFormat("yyyy-MM-dd").format(parsedDate);
-  DateTime currentDateTime = DateTime.now();
-  DateTime currentTimeWithDate = DateTime(
-    currentDateTime.year,
-    currentDateTime.month,
-    currentDateTime.day,
-    currentTime.hour,
-    currentTime.minute,
-    DateTime.now().second,
-  );
-
-  for (int i = 0; i < prayerTimes.length; i++) {
-    String prayerTime = prayerTimes[i];
-
-    String fullDateTime = "$formattedDate $prayerTime";
-
-    DateTime comparedDateTime = DateFormat("yyyy-MM-dd HH:mm:ss").parse(fullDateTime);
-
-    if (currentTimeWithDate == comparedDateTime) {
-      return true;
-    }
-  }
-
-  return false;
 }
 
 int countdownSeconds(String date) {

@@ -139,9 +139,9 @@ class _DashboardState extends State<Dashboard> {
     bool inMalaysia = await _checkInMalaysia(long, lat);
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('prefsInMalaysia', inMalaysia);
     await prefs.setString('prefsLongitude', long);
     await prefs.setString('prefsLatitude', lat);
+    await prefs.setBool('prefsInMalaysia', inMalaysia);
 
     if(inMalaysia){
       await _loadTimeZone(long, lat);
@@ -405,11 +405,11 @@ class _DashboardState extends State<Dashboard> {
                   PrayerTime(height: remainingHeight),
                 ]
                 else ... [
-                  loadingGifIndicator( gif: 'assets/img/loading.gif', message: 'Loading data1...'),
+                  loadingGifIndicator( gif: 'assets/img/loading.gif', message: 'Loading data...'),
                 ]
               ]
               else ... [
-                loadingGifIndicator( gif: 'assets/img/loading.gif', message: 'Loading data2...'),
+                loadingGifIndicator( gif: 'assets/img/loading.gif', message: 'Loading data...'),
               ]
             ],
           ),

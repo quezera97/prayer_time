@@ -8,9 +8,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api/location_time_zone.dart';
 import '../api/overseas_prayer_time.dart';
+import '../components/loading_indicator.dart';
 import '../components/popup_message.dart';
 import '../enums/prayer_calculation_method.dart';
+import '../enums/prayer_time.dart';
+import '../qiblah/qiblah.dart';
+import '../settings/settings.dart';
+import 'al_quran.dart';
+import 'asma_ul_husna.dart';
 import 'dashboard.dart';
+import 'muazzin.dart';
 
 class DashboardOverseas extends StatefulWidget {
   
@@ -66,9 +73,23 @@ class _DashboardOverseasState extends State<DashboardOverseas> {
     {'value': '16', 'option': CalculationMethodEnum.dubai},
   ];
 
+  String imsakName = PrayerTimeEnum.imsak;
+  String fajrName = PrayerTimeEnum.fajr;
+  String syurukName = PrayerTimeEnum.syuruk;
+  String dhuhrName = PrayerTimeEnum.dhuhr;
+  String asrName = PrayerTimeEnum.asr;
+  String maghribName = PrayerTimeEnum.maghrib;
+  String ishaName = PrayerTimeEnum.isha;
+
+  bool finishLoad = false;
+
+  String? muazzin;
+  String prefsMuazzin = '';
+
   @override
   void initState() {
     _getInitPrefs();
+    _getMuazzin();
 
     super.initState();
   }
@@ -85,10 +106,8 @@ class _DashboardOverseasState extends State<DashboardOverseas> {
         selectedOptionMethod = prefsValueMethod;
       });
 
-      await _loadPrayerTime(selectedValueMethod);
+      await _checkGps();
     }
-
-    await _checkGps();
   }
 
   Future<void> _checkGps() async {
@@ -166,6 +185,7 @@ class _DashboardOverseasState extends State<DashboardOverseas> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('prefsLongitude', long);
     await prefs.setString('prefsLatitude', lat);
+    await prefs.setBool('prefsInMalaysia', inMalaysia);
 
     if(!inMalaysia){
       await _loadTimeZone(long, lat);
@@ -196,6 +216,8 @@ class _DashboardOverseasState extends State<DashboardOverseas> {
         await prefs.setString('prefsStateZone', stateZone!);
         await prefs.setString('prefsLongitude', long);
         await prefs.setString('prefsLatitude', lat);
+
+        await _loadPrayerTime(selectedValueMethod);
       }
 
       setState(() {
@@ -208,7 +230,6 @@ class _DashboardOverseasState extends State<DashboardOverseas> {
   }
 
   Future<void> _loadPrayerTime(valueMethod) async {
-    
     if(long.isNotEmpty && lat.isNotEmpty){
       stateZone = await fetchTimeZone(long, lat);
 
@@ -221,20 +242,37 @@ class _DashboardOverseasState extends State<DashboardOverseas> {
         setState(() {
           stateZone;
 
-          imsak = prayerTime['Imsak'].replaceAll(' (+08)', '');
-          fajr = prayerTime['Fajr'].replaceAll(' (+08)', '');
-          syuruk = prayerTime['Sunrise'].replaceAll(' (+08)', '');
-          dhuhr = prayerTime['Dhuhr'].replaceAll(' (+08)', '');
-          asr = prayerTime['Asr'].replaceAll(' (+08)', '');
-          maghrib = prayerTime['Maghrib'].replaceAll(' (+08)', '');
-          isha = prayerTime['Isha'].replaceAll(' (+08)', '');
+          imsak = prayerTime['Imsak'].substring(0, 5);
+          fajr = prayerTime['Fajr'].substring(0, 5);
+          syuruk = prayerTime['Sunrise'].substring(0, 5);
+          dhuhr = prayerTime['Dhuhr'].substring(0, 5);
+          asr = prayerTime['Asr'].substring(0, 5);
+          maghrib = prayerTime['Maghrib'].substring(0, 5);
+          isha = prayerTime['Isha'].substring(0, 5);
+
+          finishLoad = true;
         });
       }
     }
-  } 
+  }
+
+  Future<void> _getMuazzin() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    prefsMuazzin = prefs.getString('prefsMuazzin') ?? 'RabehIbnDarahAlJazairi';
+
+    String textMuazzin = prefsMuazzin.replaceAllMapped(RegExp(r'[A-Z][a-z]*'), (match) {
+      return '${match.group(0)} ';
+    });
+    textMuazzin = textMuazzin.trim();
+
+    setState(() {
+      muazzin = textMuazzin;
+    });
+  }
 
   @override
-  Widget build(BuildContext context) {    
+  Widget build(BuildContext context) {      
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: const Color(0xffffffff),
@@ -255,12 +293,128 @@ class _DashboardOverseasState extends State<DashboardOverseas> {
             ],
           )
         ],
-        backgroundColor: const Color(0xff764abc),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pushReplacementNamed(context, '/dashboard');
-          },
+        backgroundColor: const Color(0xff764abc),        
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: const BoxDecoration(
+                color: Color(0xff764abc),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  SizedBox(
+                    height: 70,
+                    width: 70,
+                    child: Image.asset('assets/img/logo.png'),
+                  ),
+                  const Text(
+                    'PRAYER TIME', 
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.white
+                    )
+                  ),
+                  // const Spacer(),
+                  // const Text('Build Version: 1.0.0', style: TextStyle(color: Colors.white)),
+                ],
+              ),
+            ),            
+            ListTile(
+              leading: const Icon(
+                Icons.language,
+              ),
+              title: const Text('Prayer Time'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Dashboard()),
+                );
+              },
+            ),
+            const Divider(
+              thickness: 0.25,
+              color: Colors.grey,
+              indent: 20,
+              endIndent: 20,
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.person_4_sharp,
+              ),
+              title: const Text('Muazzin'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Muazzin()),
+                );
+              },
+            ),
+            const Divider(
+              thickness: 0.25,
+              color: Colors.grey,
+              indent: 20,
+              endIndent: 20,
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.abc,
+              ),
+              title: const Text('Asma Ul-Husna'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AsmaUlHusna()),
+                );
+              },
+            ),            
+            const Divider(
+              thickness: 0.25,
+              color: Colors.grey,
+              indent: 20,
+              endIndent: 20,
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.collections_bookmark,
+              ),
+              title: const Text('Al-Quran'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AlQuran()),
+                );
+              },
+            ),
+            const Divider(
+              thickness: 0.25,
+              color: Colors.grey,
+              indent: 20,
+              endIndent: 20,
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.settings,
+              ),
+              title: const Text('Setting'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Settings()),
+                );
+              },
+            ),
+            const Divider(
+              thickness: 0.25,
+              color: Colors.grey,
+              indent: 20,
+              endIndent: 20,
+            ),
+          ],
         ),
       ),
       body: SingleChildScrollView(
@@ -282,6 +436,9 @@ class _DashboardOverseasState extends State<DashboardOverseas> {
                     .toList(),
                   onChanged: (value) async {
                     setState(() {
+
+                      finishLoad = false;
+
                       selectedValueMethod = value!;
                       selectedOptionMethod = calculationMethod.firstWhere((item) => item['value'] == value)['option']!;
 
@@ -298,34 +455,200 @@ class _DashboardOverseasState extends State<DashboardOverseas> {
               ),
               const SizedBox(height: 10),
 
-              if(selectedValueMethod.isNotEmpty) ... [
+              if(selectedValueMethod.isNotEmpty && finishLoad == true) ... [
                 const Text('Method of Calculation:'),
                 const SizedBox(height: 5),
-                Text(selectedOptionMethod),
-              ]
+                Text(
+                  selectedOptionMethod, 
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                SizedBox(
+                  height: MediaQuery.of(context).size.height / 2,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: Colors.black,
+                        width: 2,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Center(
+                                  child: SizedBox(
+                                    height: 250,
+                                    width: 250,
+                                    child: Qiblah(),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 10),
+
+                                Center(
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            margin: const EdgeInsets.fromLTRB(0, 5, 11, 0),
+                                            child: Text(
+                                              '$imsakName: $imsak',
+                                              style: const TextStyle(
+                                                fontSize: 19,
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                            margin: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                                            child: Text(
+                                              '$fajrName: $fajr',
+                                              style: const TextStyle(
+                                                fontSize: 19,
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                            margin: const EdgeInsets.fromLTRB(11, 5, 0, 0),
+                                            child: Text(
+                                              '$syurukName: $syuruk',
+                                              style: const TextStyle(
+                                                fontSize: 19,
+                                              ),
+                                            ),
+                                          ), 
+                                        ],
+                                      ),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            margin: const EdgeInsets.fromLTRB(0, 5, 11, 0),
+                                            child: Text(
+                                              '$dhuhrName: $dhuhr',
+                                              style: const TextStyle(
+                                                fontSize: 19,
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                            margin: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                                            child: Text(
+                                              '$asrName: $asr',
+                                              style: const TextStyle(
+                                                fontSize: 19,
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                            margin: const EdgeInsets.fromLTRB(11, 5, 0, 0),
+                                            child: Text(
+                                              '$maghribName: $maghrib',
+                                              style: const TextStyle(
+                                                fontSize: 19,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Container(
+                                        margin: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                                        child: Text(
+                                          '$ishaName: $isha',
+                                          style: const TextStyle(
+                                            fontSize: 19,
+                                          ),
+                                        ),
+                                      ),                                      
+                                    ],
+                                  )
+                                )
+                              ],
+                            ),
+                          ),
+                          // Expanded(
+                          //   child: 
+                          // ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              
+                const SizedBox(height: 20),
                 
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                      child: Text( 
+                        muazzin ?? '',
+                        style: const TextStyle(
+                          color: Colors.black54,
+                          fontStyle: FontStyle.italic,
+                          fontSize: 16.5,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ]
+              else ... [
+                loadingGifIndicator( gif: 'assets/img/loading.gif', message: 'Loading data...'),
+              ]
             ],
           ),
         ),
       ),
-      bottomNavigationBar: SizedBox(
-        height: 50.0,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.location_on, color: Colors.black54,
-            ),
-            Text( 
-              stateZone ?? '',
-              style: const TextStyle(
-                color: Colors.black54,
-                fontSize: 18.0,
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(30.0),
+        child: SizedBox(
+          height: 50.0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.location_on,
+                      color: Colors.black54,
+                    ),
+                    Expanded( // or Flexible
+                      child: Text(
+                        stateZone ?? '',
+                        style: const TextStyle(
+                          color: Colors.black54,
+                          fontSize: 18.0,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: null,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
+
     );
   }
 }

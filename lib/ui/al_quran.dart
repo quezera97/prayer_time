@@ -35,9 +35,11 @@ class _AlQuranState extends State<AlQuran> {
       nameOfSurahEng = apiRandomSurah['englishName'];
       randomSurah = apiRandomSurah['ayahs'];
 
-      setState(() {
-        finishLoadAyahs = true;
-      });
+      if (mounted) {
+        setState(() {
+          finishLoadAyahs = true;
+        });
+      }
     }
   }
 
@@ -107,7 +109,7 @@ class _AlQuranState extends State<AlQuran> {
           const SizedBox(height: 10),
 
           if(finishLoadAyahs == false) ... [
-            loadingGifIndicator( gif: 'assets/img/loading.gif', message: 'Loading data5...'),
+            loadingGifIndicator( gif: 'assets/img/loading.gif', message: 'Loading data...'),
           ]
           else ... [
             Expanded(

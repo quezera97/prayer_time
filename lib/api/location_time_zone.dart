@@ -11,7 +11,7 @@ Future<dynamic> fetchTimeZone(String long, String lat) async {
     if (responseLatLong.statusCode == 200) {
       var jsonResponse = convert.jsonDecode(responseLatLong.body);
       var apiDisplayName = jsonResponse['display_name'];
-      var apiState = jsonResponse['address']['state'];
+      // var apiState = jsonResponse['address']['state'];
 
       return apiDisplayName;
     } else {
